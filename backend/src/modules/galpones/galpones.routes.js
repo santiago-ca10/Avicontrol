@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const galponesController = require('../controllers/galpones.controller');
+const galponesController = require('./galpones.controller');
 
 // GALPONES
 router.get('/', galponesController.getAllGalpones);
