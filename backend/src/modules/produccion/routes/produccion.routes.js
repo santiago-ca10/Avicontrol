@@ -1,14 +1,10 @@
 const express = require('express');
-
 const router = express.Router();
 
+
 const produccionController =
-    require('./produccion.controller');
+    require('../controller/produccion.controller');
 
-
-// ===============================
-// ENDPOINTS PRODUCCIÓN
-// ===============================
 router.get(
     '/',
     produccionController.getAllProduccion

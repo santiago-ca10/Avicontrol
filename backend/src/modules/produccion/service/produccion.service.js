@@ -1,5 +1,5 @@
 const produccionRepository =
-    require('./produccion.repository');
+    require('../repository/produccion.repository');
 
 
 // ===============================

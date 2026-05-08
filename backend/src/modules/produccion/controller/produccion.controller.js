@@ -1,5 +1,5 @@
 const produccionService =
-    require('./produccion.service');
+    require('../service/produccion.service');
 
 
 // ===============================

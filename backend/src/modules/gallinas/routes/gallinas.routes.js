@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const gallinasController =
-    require('./gallinas.controller');
+    require('../controller/gallinas.controller');
 
 router.get(
     '/',

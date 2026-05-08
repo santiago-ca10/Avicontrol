@@ -1,16 +1,12 @@
 const galponRepository =
-    require('./galpones.repository');
-
+    require('../repository/galpones.repository');
 
 // ===============================
 // OBTENER TODOS
 // ===============================
 exports.getAllGalpones = async () => {
-
     return await galponRepository.getAll();
-
 };
-
 
 // ===============================
 // OBTENER POR ID
@@ -31,15 +27,13 @@ exports.getGalponById = async (id) => {
     return galpon;
 };
 
-
 // ===============================
-// CREAR GALPÓN
+// CREAR
 // ===============================
 exports.createGalpon = async (data) => {
 
     let { nombre, capacidad } = data;
 
-    // VALIDACIONES
     if (!nombre || nombre.trim() === '') {
         throw new Error('Nombre obligatorio');
     }
@@ -48,15 +42,10 @@ exports.createGalpon = async (data) => {
         throw new Error('Capacidad inválida');
     }
 
-    // NORMALIZACIÓN
     nombre = nombre.trim();
 
-    return await galponRepository.create(
-        nombre,
-        capacidad
-    );
+    return await galponRepository.create(nombre, capacidad);
 };
-
 
 // ===============================
 // ACTUALIZAR
@@ -69,13 +58,8 @@ exports.updateGalpon = async (id, data) => {
         throw new Error('ID requerido');
     }
 
-    return await galponRepository.update(
-        id,
-        nombre,
-        capacidad
-    );
+    return await galponRepository.update(id, nombre, capacidad);
 };
-
 
 // ===============================
 // ELIMINAR

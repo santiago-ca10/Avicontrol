@@ -1,4 +1,4 @@
-const gallinasService = require('./gallinas.service');
+const gallinasService = require('../service/gallinas.service');
 
 
 // GET ALL

@@ -1,4 +1,4 @@
-const gallinasRepository = require('./gallinas.repository');
+const gallinasRepository = require('../repository/gallinas.repository');
 
 
 // GET ALL

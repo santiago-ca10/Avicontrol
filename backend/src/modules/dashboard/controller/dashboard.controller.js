@@ -1,5 +1,5 @@
 const dashboardService =
-    require('./dashboard.service');
+    require('../service/dashboard.service');
 
 
 // ===============================

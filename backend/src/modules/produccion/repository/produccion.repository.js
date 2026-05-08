@@ -1,4 +1,4 @@
-const db = require('../../config/db');
+const db = require('../../../config/db');
 
 
 // ===============================
@@ -9,11 +9,11 @@ exports.create = async (data) => {
     const {
         galpon_id,
         fecha,
-        huevos,
-        aves_activas,
-        mortalidad,
-        alimento_kg,
-        observaciones
+        huevos = 0,
+        aves_activas = 0,
+        mortalidad = 0,
+        alimento_kg = 0,
+        observaciones = null
     } = data;
 
     const [result] = await db.query(`
@@ -48,13 +48,20 @@ exports.create = async (data) => {
 exports.getAll = async () => {
 
     const [rows] = await db.query(`
-        SELECT
-            p.*,
+        SELECT 
+            p.id,
+            p.galpon_id,
+            p.fecha,
+            p.huevos,
+            p.aves_activas,
+            p.mortalidad,
+            p.alimento_kg,
+            p.observaciones,
             g.nombre AS galpon
         FROM produccion_diaria p
         JOIN galpones g
             ON p.galpon_id = g.id
-        ORDER BY p.fecha DESC
+        ORDER BY p.fecha DESC, p.id DESC
     `);
 
     return rows;

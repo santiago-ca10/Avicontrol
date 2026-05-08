@@ -1,5 +1,5 @@
 const galponService =
-    require('./galpones.service');
+    require('../service/galpones.service');
 
 
 // ===============================

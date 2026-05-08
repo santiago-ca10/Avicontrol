@@ -1,5 +1,5 @@
 const dashboardRepository =
-    require('./dashboard.repository');
+    require('./repository/dashboard.repository');
 
 
 // ===============================
