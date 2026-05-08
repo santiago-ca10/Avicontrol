@@ -1,75 +1,68 @@
 const db = require('../config/db');
 
+// CREAR PRODUCCIÓN DIARIA
+exports.createProduccion = async (req, res) => {
+    try {
 
-// CREAR REGISTRO DE PRODUCCIÓN
-exports.createProduccion = (req, res) => {
-    const { gallina_id, fecha, produjo, observaciones } = req.body;
+        const {
+            galpon_id,
+            fecha,
+            huevos,
+            aves_activas,
+            mortalidad,
+            alimento_kg,
+            observaciones
+        } = req.body;
 
-    const query = `
-        INSERT INTO produccion_huevos (gallina_id, fecha, produjo, observaciones)
-        VALUES (?, ?, ?, ?)
-    `;
-
-    db.query(query, [gallina_id, fecha, produjo, observaciones], (err, result) => {
-        if (err) return res.status(500).json(err);
+        const [result] = await db.query(`
+            INSERT INTO produccion_diaria
+            (
+                galpon_id,
+                fecha,
+                huevos,
+                aves_activas,
+                mortalidad,
+                alimento_kg,
+                observaciones
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [
+            galpon_id,
+            fecha,
+            huevos,
+            aves_activas,
+            mortalidad,
+            alimento_kg,
+            observaciones
+        ]);
 
         res.json({
             message: 'Producción registrada',
             id: result.insertId
         });
-    });
+
+    } catch (error) {
+        res.status(500).json(error);
+    }
 };
 
+// OBTENER PRODUCCIÓN
+exports.getAllProduccion = async (req, res) => {
+    try {
 
-// OBTENER TODOS LOS REGISTROS
-exports.getAllProduccion = (req, res) => {
-    const query = `
-        SELECT p.*, g.codigo 
-        FROM produccion_huevos p
-        JOIN gallinas g ON p.gallina_id = g.id
-        ORDER BY p.fecha DESC
-    `;
+        const [rows] = await db.query(`
+            SELECT
+                p.*,
+                g.nombre AS galpon
+            FROM produccion_diaria p
+            JOIN galpones g
+            ON p.galpon_id = g.id
+            ORDER BY fecha DESC
+        `);
 
-    db.query(query, (err, results) => {
-        if (err) return res.status(500).json(err);
+        res.json(rows);
 
-        res.json(results);
-    });
-};
-
-
-// OBTENER PRODUCCIÓN POR GALLINA
-exports.getProduccionByGallina = (req, res) => {
-    const { gallina_id } = req.params;
-
-    const query = `
-        SELECT * 
-        FROM produccion_huevos
-        WHERE gallina_id = ?
-        ORDER BY fecha DESC
-    `;
-
-    db.query(query, [gallina_id], (err, results) => {
-        if (err) return res.status(500).json(err);
-
-        res.json(results);
-    });
-};
-
-
-// TOTAL DE DÍAS QUE PRODUJO
-exports.getTotalProduccion = (req, res) => {
-    const { gallina_id } = req.params;
-
-    const query = `
-        SELECT COUNT(*) AS total
-        FROM produccion_huevos
-        WHERE gallina_id = ? AND produjo = 1
-    `;
-
-    db.query(query, [gallina_id], (err, results) => {
-        if (err) return res.status(500).json(err);
-
-        res.json(results[0]);
-    });
+    } catch (error) {
+        res.status(500).json(error);
+    }
 };

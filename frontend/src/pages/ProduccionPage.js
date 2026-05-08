@@ -2,60 +2,76 @@ import { useEffect, useState } from 'react';
 import API from '../services/api';
 
 function ProduccionPage() {
-  const [gallinas, setGallinas] = useState([]);
+
+  const [galpones, setGalpones] = useState([]);
   const [produccion, setProduccion] = useState([]);
-  const [openGallina, setOpenGallina] = useState(null);
 
   const [form, setForm] = useState({
-    gallina_id: '',
+    galpon_id: '',
     fecha: '',
-    produjo: '1',
+    huevos: '',
+    aves_activas: '',
+    mortalidad: 0,
+    alimento_kg: '',
     observaciones: ''
   });
 
   useEffect(() => {
-    API.get('/gallinas')
-      .then(res => setGallinas(res.data))
-      .catch(err => console.error(err));
 
+    fetchGalpones();
     fetchProduccion();
+
   }, []);
 
+  // 🔹 OBTENER GALPONES
+  const fetchGalpones = () => {
+
+    API.get('/galpones')
+      .then(res => setGalpones(res.data))
+      .catch(err => console.error(err));
+  };
+
+  // 🔹 OBTENER PRODUCCIÓN
   const fetchProduccion = () => {
+
     API.get('/produccion')
       .then(res => setProduccion(res.data))
       .catch(err => console.error(err));
   };
 
+  // 🔹 CAMBIOS FORM
   const handleChange = (e) => {
+
     setForm({
       ...form,
       [e.target.name]: e.target.value
     });
   };
 
+  // 🔹 GUARDAR
   const handleSubmit = (e) => {
+
     e.preventDefault();
 
     API.post('/produccion', form)
       .then(() => {
-        alert('Registro guardado 🥚');
+
+        alert('Producción registrada 🥚');
 
         setForm({
-          gallina_id: '',
+          galpon_id: '',
           fecha: '',
-          produjo: '1',
+          huevos: '',
+          aves_activas: '',
+          mortalidad: 0,
+          alimento_kg: '',
           observaciones: ''
         });
 
         fetchProduccion();
+
       })
       .catch(err => console.error(err));
-  };
-
-  // 🔥 AGRUPAR HISTORIAL POR GALLINA
-  const getHistorialPorGallina = (codigo) => {
-    return produccion.filter(p => p.codigo === codigo);
   };
 
   return (
@@ -65,23 +81,26 @@ function ProduccionPage() {
 
       <div className="grid">
 
-        {/* FORM */}
+        {/* FORMULARIO */}
         <div className="card">
+
           <h3>Registrar Producción</h3>
 
           <form onSubmit={handleSubmit}>
 
             <select
-              name="gallina_id"
-              value={form.gallina_id}
+              name="galpon_id"
+              value={form.galpon_id}
               onChange={handleChange}
               required
             >
-              <option value="">Seleccione gallina</option>
+              <option value="">
+                Seleccione galpón
+              </option>
 
-              {gallinas.map(g => (
+              {galpones.map(g => (
                 <option key={g.id} value={g.id}>
-                  {g.codigo}
+                  {g.nombre}
                 </option>
               ))}
             </select>
@@ -94,19 +113,45 @@ function ProduccionPage() {
               required
             />
 
-            <select
-              name="produjo"
-              value={form.produjo}
+            <input
+              type="number"
+              name="huevos"
+              placeholder="🥚 Huevos producidos"
+              value={form.huevos}
               onChange={handleChange}
-            >
-              <option value="1">✅ Produjo huevo</option>
-              <option value="0">❌ No produjo</option>
-            </select>
+              required
+            />
+
+            <input
+              type="number"
+              name="aves_activas"
+              placeholder="🐓 Aves activas"
+              value={form.aves_activas}
+              onChange={handleChange}
+              required
+            />
+
+            <input
+              type="number"
+              name="mortalidad"
+              placeholder="☠️ Mortalidad"
+              value={form.mortalidad}
+              onChange={handleChange}
+            />
+
+            <input
+              type="number"
+              step="0.01"
+              name="alimento_kg"
+              placeholder="🍽️ Alimento (kg)"
+              value={form.alimento_kg}
+              onChange={handleChange}
+            />
 
             <input
               type="text"
               name="observaciones"
-              placeholder="Observaciones"
+              placeholder="📝 Observaciones"
               value={form.observaciones}
               onChange={handleChange}
             />
@@ -116,72 +161,60 @@ function ProduccionPage() {
             </button>
 
           </form>
+
         </div>
 
       </div>
 
-      {/* HISTORIAL POR GALLINA */}
-      <h2 style={{ marginTop: 30 }}>🐓 Historial por Gallina</h2>
+      {/* HISTORIAL */}
+      <h2 style={{ marginTop: 30 }}>
+        📋 Historial de Producción
+      </h2>
 
-      {gallinas.map(g => {
-        const historial = getHistorialPorGallina(g.codigo);
+      {produccion.map(p => {
+
+        const productividad =
+          ((p.huevos / p.aves_activas) * 100).toFixed(1);
 
         return (
-          <div key={g.id} className="card" style={{ marginBottom: 10 }}>
 
-            {/* HEADER CLICKABLE */}
-            <div
-              style={{ cursor: 'pointer' }}
-              onClick={() =>
-                setOpenGallina(openGallina === g.codigo ? null : g.codigo)
-              }
-            >
-              <h3>
-                🐓 {g.codigo} ({historial.length} registros)
-              </h3>
-              <small>
-                Click para ver historial
-              </small>
-            </div>
+          <div
+            key={p.id}
+            className="card"
+            style={{ marginBottom: 15 }}
+          >
 
-            {/* EXPANDIBLE */}
-            {openGallina === g.codigo && (
-              <div style={{ marginTop: 10 }}>
+            <h3>
+              🏠 {p.galpon}
+            </h3>
 
-                {historial.length === 0 ? (
-                  <p>Sin registros</p>
-                ) : (
-                  <table width="100%" cellPadding="8">
-                    <thead>
-                      <tr>
-                        <th>📅 Fecha</th>
-                        <th>Estado</th>
-                        <th>📝 Observaciones</th>
-                      </tr>
-                    </thead>
+            <p>
+              📅 {new Date(p.fecha).toLocaleDateString()}
+            </p>
 
-                    <tbody>
-                      {historial.map(h => (
-                        <tr key={h.id}>
-                          <td>
-                            {new Date(h.fecha).toLocaleDateString()}
-                          </td>
+            <p>
+              🥚 Huevos: {p.huevos}
+            </p>
 
-                          <td>
-                            {h.produjo ? '✅' : '❌'}
-                          </td>
+            <p>
+              🐓 Aves activas: {p.aves_activas}
+            </p>
 
-                          <td>
-                            {h.observaciones || '-'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
+            <p>
+              📈 Productividad: {productividad}%
+            </p>
 
-              </div>
-            )}
+            <p>
+              ☠️ Mortalidad: {p.mortalidad}
+            </p>
+
+            <p>
+              🍽️ Alimento: {p.alimento_kg || 0} kg
+            </p>
+
+            <p>
+              📝 {p.observaciones || '-'}
+            </p>
 
           </div>
         );

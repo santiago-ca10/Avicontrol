@@ -2,33 +2,60 @@ import { useEffect, useState } from 'react';
 import API from '../services/api';
 
 function DashboardPage() {
+
   const [gallinas, setGallinas] = useState([]);
   const [produccion, setProduccion] = useState([]);
 
   useEffect(() => {
+
+    fetchGallinas();
+    fetchProduccion();
+
+  }, []);
+
+  // 🔹 OBTENER GALLINAS
+  const fetchGallinas = () => {
+
     API.get('/gallinas')
       .then(res => setGallinas(res.data))
       .catch(err => console.error(err));
+  };
+
+  // 🔹 OBTENER PRODUCCIÓN
+  const fetchProduccion = () => {
 
     API.get('/produccion')
       .then(res => setProduccion(res.data))
       .catch(err => console.error(err));
-  }, []);
+  };
 
-  // ✅ Gallinas que produjeron
-  const produjeron = produccion.filter(
-    p => p.produjo === 1
-  ).length;
+  // 🔥 TOTALES
 
-  // ❌ Gallinas que NO produjeron
-  const noProdujeron = produccion.filter(
-    p => p.produjo === 0
-  ).length;
+  const totalHuevos = produccion.reduce(
+    (acc, p) => acc + Number(p.huevos),
+    0
+  );
 
-  // 📊 Porcentaje de producción
-  const porcentaje = produccion.length > 0
-    ? Math.round((produjeron / produccion.length) * 100)
-    : 0;
+  const totalAves = produccion.reduce(
+    (acc, p) => acc + Number(p.aves_activas),
+    0
+  );
+
+  const totalMortalidad = produccion.reduce(
+    (acc, p) => acc + Number(p.mortalidad),
+    0
+  );
+
+  const totalAlimento = produccion.reduce(
+    (acc, p) => acc + Number(p.alimento_kg || 0),
+    0
+  );
+
+  // 📈 PRODUCTIVIDAD
+  const productividad =
+    totalAves > 0
+      ? ((totalHuevos / totalAves) * 100).toFixed(1)
+      : 0;
 
   return (
     <div className="container">
@@ -43,28 +70,34 @@ function DashboardPage() {
           <p>🐓 Gallinas registradas</p>
         </div>
 
-        {/* REGISTROS */}
+        {/* HUEVOS */}
         <div className="card stat">
-          <h2>{produccion.length}</h2>
-          <p>📝 Registros diarios</p>
+          <h2>{totalHuevos}</h2>
+          <p>🥚 Huevos producidos</p>
         </div>
 
-        {/* PRODUJERON */}
+        {/* AVES */}
         <div className="card stat">
-          <h2>{produjeron}</h2>
-          <p>🥚 Produjeron huevo</p>
+          <h2>{totalAves}</h2>
+          <p>🐓 Aves activas</p>
         </div>
 
-        {/* NO PRODUJERON */}
+        {/* PRODUCTIVIDAD */}
         <div className="card stat">
-          <h2>{noProdujeron}</h2>
-          <p>❌ No produjeron</p>
-        </div>
-
-        {/* PORCENTAJE */}
-        <div className="card stat">
-          <h2>{porcentaje}%</h2>
+          <h2>{productividad}%</h2>
           <p>📈 Productividad</p>
+        </div>
+
+        {/* MORTALIDAD */}
+        <div className="card stat">
+          <h2>{totalMortalidad}</h2>
+          <p>☠️ Mortalidad</p>
+        </div>
+
+        {/* ALIMENTO */}
+        <div className="card stat">
+          <h2>{totalAlimento} kg</h2>
+          <p>🍽️ Alimento consumido</p>
         </div>
 
       </div>

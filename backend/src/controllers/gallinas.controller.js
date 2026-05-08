@@ -1,81 +1,148 @@
 const db = require('../config/db');
 
 // 🔹 Obtener todas
-exports.getAllGallinas = (req, res) => {
-    db.query('SELECT * FROM gallinas', (err, results) => {
-        if (err) return res.status(500).json(err);
-        res.json(results);
-    });
+exports.getAllGallinas = async (req, res) => {
+    try {
+
+        const [rows] = await db.query(`
+            SELECT g.*, ga.nombre AS galpon
+            FROM gallinas g
+            LEFT JOIN galpones ga ON g.galpon_id = ga.id
+        `);
+
+        res.json(rows);
+
+    } catch (error) {
+        res.status(500).json(error);
+    }
 };
 
 // 🔹 Obtener por ID
-exports.getGallinaById = (req, res) => {
-    const { id } = req.params;
+exports.getGallinaById = async (req, res) => {
+    try {
 
-    db.query('SELECT * FROM gallinas WHERE id = ?', [id], (err, results) => {
-        if (err) return res.status(500).json(err);
+        const { id } = req.params;
 
-        if (results.length === 0) {
-            return res.status(404).json({ message: 'Gallina no encontrada' });
+        const [rows] = await db.query(
+            'SELECT * FROM gallinas WHERE id = ?',
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                message: 'Gallina no encontrada'
+            });
         }
 
-        res.json(results[0]);
-    });
+        res.json(rows[0]);
+
+    } catch (error) {
+        res.status(500).json(error);
+    }
 };
 
 // 🔹 Crear
-exports.createGallina = (req, res) => {
-    const { codigo, raza, edad } = req.body;
+exports.createGallina = async (req, res) => {
+    try {
 
-    if (!codigo || !edad) {
-        return res.status(400).json({ message: 'Campos obligatorios faltantes' });
-    }
+        const {
+            codigo,
+            raza,
+            edad,
+            galpon_id
+        } = req.body;
 
-    const query = 'INSERT INTO gallinas (codigo, raza, edad) VALUES (?, ?, ?)';
+        if (!codigo || !edad) {
+            return res.status(400).json({
+                message: 'Campos obligatorios faltantes'
+            });
+        }
 
-    db.query(query, [codigo, raza, edad], (err, result) => {
-        if (err) return res.status(500).json(err);
+        const [result] = await db.query(`
+            INSERT INTO gallinas
+            (codigo, raza, edad, galpon_id)
+            VALUES (?, ?, ?, ?)
+        `, [codigo, raza, edad, galpon_id]);
 
         res.json({
             message: 'Gallina creada correctamente',
             id: result.insertId
         });
-    });
+
+    } catch (error) {
+        res.status(500).json(error);
+    }
 };
 
 // 🔹 Actualizar
-exports.updateGallina = (req, res) => {
-    const { id } = req.params;
-    const { codigo, raza, edad, estado } = req.body;
+exports.updateGallina = async (req, res) => {
+    try {
 
-    const query = `
-        UPDATE gallinas 
-        SET codigo = ?, raza = ?, edad = ?, estado = ?
-        WHERE id = ?
-    `;
+        const { id } = req.params;
 
-    db.query(query, [codigo, raza, edad, estado, id], (err, result) => {
-        if (err) return res.status(500).json(err);
+        const {
+            codigo,
+            raza,
+            edad,
+            estado,
+            galpon_id
+        } = req.body;
+
+        const [result] = await db.query(`
+            UPDATE gallinas
+            SET
+                codigo = ?,
+                raza = ?,
+                edad = ?,
+                estado = ?,
+                galpon_id = ?
+            WHERE id = ?
+        `, [
+            codigo,
+            raza,
+            edad,
+            estado,
+            galpon_id,
+            id
+        ]);
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Gallina no encontrada' });
+            return res.status(404).json({
+                message: 'Gallina no encontrada'
+            });
         }
 
-        res.json({ message: 'Gallina actualizada correctamente' });
-    });
+        res.json({
+            message: 'Gallina actualizada correctamente'
+        });
+
+    } catch (error) {
+        res.status(500).json(error);
+    }
 };
 
 // 🔹 Eliminar
-exports.deleteGallina = (req, res) => {
-    const { id } = req.params;
+exports.deleteGallina = async (req, res) => {
+    try {
 
-    db.query('DELETE FROM gallinas WHERE id = ?', [id], (err, result) => {
-        if (err) return res.status(500).json(err);
+        const { id } = req.params;
+
+        const [result] = await db.query(
+            'DELETE FROM gallinas WHERE id = ?',
+            [id]
+        );
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Gallina no encontrada' });
+            return res.status(404).json({
+                message: 'Gallina no encontrada'
+            });
         }
 
-        res.json({ message: 'Gallina eliminada correctamente' });
-    });
+        res.json({
+            message: 'Gallina eliminada correctamente'
+        });
+
+    } catch (error) {
+        res.status(500).json(error);
+    }
 };

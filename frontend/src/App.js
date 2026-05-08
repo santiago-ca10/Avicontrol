@@ -1,77 +1,99 @@
-import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route
+} from 'react-router-dom';
+
+import {
+  useEffect,
+  useState
+} from 'react';
+
 import './index.css';
+
+// COMPONENTS
+import Sidebar from './components/Sidebar';
+
+// PAGES
+import DashboardPage from './pages/DashboardPage';
 import GallinasPage from './pages/GallinasPage';
 import CrearGallinaPage from './pages/CrearGallinaPage';
 import ProduccionPage from './pages/ProduccionPage';
-import DashboardPage from './pages/DashboardPage';
+import GalponesPage from './pages/GalponesPage';
 
 function App() {
+
+  // 🌙 DARK MODE
+  const [dark, setDark] = useState(false);
+
+  // 📂 SIDEBAR
+  const [collapsed, setCollapsed] = useState(false);
+
+  // 🌙 CAMBIO TEMA
+  useEffect(() => {
+
+    if (dark) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+
+  }, [dark]);
+
   return (
+
     <Router>
-      <div>
 
-        {/* 🔥 FONDO ANIMADO (BLOBS) */}
-        <div className="blob"></div>
-        <div className="blob-2"></div>
+      {/* FONDO */}
+      <div className="blob"></div>
+      <div className="blob-2"></div>
 
-        <div className="app">
+      <div className="app">
 
-          {/* SIDEBAR */}
-          <aside className="sidebar">
-            <h2 className="logo">🐓 Avicontrol</h2>
+        {/* SIDEBAR */}
+        <Sidebar
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
+          dark={dark}
+          setDark={setDark}
+        />
 
-            <nav className="menu">
-              <NavLink 
-                to="/" 
-                end 
-                className={({ isActive }) => 
-                  isActive ? "menu-item active" : "menu-item"
-                }
-              >
-                📊 Dashboard
-              </NavLink>
+        {/* MAIN */}
+        <main className="main">
 
-              <NavLink 
-                to="/gallinas" 
-                className={({ isActive }) => 
-                  isActive ? "menu-item active" : "menu-item"
-                }
-              >
-                🐓 Gallinas
-              </NavLink>
+          <Routes>
 
-              <NavLink 
-                to="/crear" 
-                className={({ isActive }) => 
-                  isActive ? "menu-item active" : "menu-item"
-                }
-              >
-                ➕ Crear
-              </NavLink>
+            <Route
+              path="/"
+              element={<DashboardPage />}
+            />
 
-              <NavLink 
-                to="/produccion" 
-                className={({ isActive }) => 
-                  isActive ? "menu-item active" : "menu-item"
-                }
-              >
-                🥚 Producción
-              </NavLink>
-            </nav>
-          </aside>
+            <Route
+              path="/gallinas"
+              element={<GallinasPage />}
+            />
 
-          {/* CONTENIDO */}
-          <main className="main">
-            <Routes>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/gallinas" element={<GallinasPage />} />
-              <Route path="/crear" element={<CrearGallinaPage />} />
-              <Route path="/produccion" element={<ProduccionPage />} />
-            </Routes>
-          </main>
+            <Route
+              path="/galpones"
+              element={<GalponesPage />}
+            />
 
-        </div>
+            <Route
+              path="/crear"
+              element={<CrearGallinaPage />}
+            />
+
+            <Route
+              path="/produccion"
+              element={<ProduccionPage />}
+            />
+
+          </Routes>
+
+        </main>
+
       </div>
+
     </Router>
   );
 }
