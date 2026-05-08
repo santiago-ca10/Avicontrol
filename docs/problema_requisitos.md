@@ -18,13 +18,13 @@ Estas limitaciones reducen la eficiencia operativa y dificultan la optimización
 
 ---
 
-# 🎯 Objetivo General
+#  Objetivo General
 
 Desarrollar una aplicación web para la gestión y monitoreo de producción avícola, permitiendo administrar galpones, gallinas y registros diarios de producción mediante una interfaz moderna, centralizada y visual.
 
 ---
 
-# ✅ Objetivos Específicos
+#  Objetivos Específicos
 
 - Gestionar galpones y su capacidad operativa.
 - Registrar gallinas y asociarlas a un galpón.
@@ -37,7 +37,7 @@ Desarrollar una aplicación web para la gestión y monitoreo de producción aví
 
 ---
 
-# ⚙️ Requisitos Funcionales
+# Requisitos Funcionales
 
 ## Gestión de Gallinas
 
@@ -80,7 +80,7 @@ Desarrollar una aplicación web para la gestión y monitoreo de producción aví
 
 ---
 
-# 🛡️ Requisitos No Funcionales
+#  Requisitos No Funcionales
 
 - La aplicación debe ser accesible desde navegadores modernos.
 - El sistema debe mantener una arquitectura separada entre frontend y backend.
@@ -92,7 +92,7 @@ Desarrollar una aplicación web para la gestión y monitoreo de producción aví
 
 ---
 
-# 📦 Alcance
+# Alcance
 
 El sistema cubre:
 
@@ -107,7 +107,7 @@ El sistema cubre:
 
 ---
 
-# 🚫 Fuera del Alcance
+# Fuera del Alcance
 
 El sistema no incluye actualmente:
 
@@ -123,7 +123,7 @@ El sistema no incluye actualmente:
 
 ---
 
-# 🚀 Posibles Mejoras Futuras
+# Posibles Mejoras Futuras
 
 - Alertas automáticas de baja productividad.
 - Gestión sanitaria de aves.

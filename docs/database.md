@@ -1,12 +1,10 @@
-
-```md id="vjlwm2"
-# 🗄️ Base de Datos - Avicontrol
+# Base de Datos - Avicontrol
 
 Documentación de la estructura de base de datos del sistema Avicontrol.
 
 ---
 
-# 📦 Motor
+# Motor
 
 - MySQL
 - mysql2
@@ -14,18 +12,21 @@ Documentación de la estructura de base de datos del sistema Avicontrol.
 
 ---
 
-# 🏗️ Base de datos
+# Base de datos
 
+## Tabla: galpones
 ```sql
 CREATE DATABASE avicontrol_db;
-🏠 Tabla: galpones
+ Tabla: galpones
 CREATE TABLE galpones (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
     capacidad INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-🐓 Tabla: gallinas
+```
+## Tabla: gallinas
+```sql
 CREATE TABLE gallinas (
     id INT PRIMARY KEY AUTO_INCREMENT,
     codigo VARCHAR(50) UNIQUE NOT NULL,
@@ -45,7 +46,10 @@ CREATE TABLE gallinas (
     REFERENCES galpones(id)
     ON DELETE SET NULL
 );
-🥚 Tabla: produccion_diaria
+```
+
+## Tabla: produccion_diaria
+```sql
 CREATE TABLE produccion_diaria (
 
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -70,12 +74,15 @@ CREATE TABLE produccion_diaria (
     REFERENCES galpones(id)
     ON DELETE CASCADE
 );
-🔗 Relaciones
-Galpones → Gallinas
+```
+## Relaciones
+### Galpones → Gallinas
 1 galpón puede tener muchas gallinas
-Galpones → Producción
+
+### Galpones → Producción
 1 galpón puede tener muchos registros diarios
-📊 Modelo operacional
+
+## Modelo operacional
 
 El sistema evolucionó de:
 
@@ -87,14 +94,16 @@ producción diaria por galpón
 
 Esto permite:
 
-mayor escalabilidad
-manejo de grandes cantidades de aves
-métricas reales de producción
-cálculos operacionales más precisos
-🚀 Futuras mejoras
-lotes de aves
-control sanitario
-inventario de alimento
-alertas automáticas
-estadísticas avanzadas
-autenticación de usuarios
+- mayor escalabilidad
+- manejo de grandes cantidades de aves
+- métricas reales de producción
+- cálculos operacionales más precisos
+
+### Futuras mejoras
+
+- lotes de aves
+- control sanitario
+- inventario de alimento
+- alertas automáticas
+- estadísticas avanzadas
+- autenticación de usuarios

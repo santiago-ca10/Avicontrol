@@ -4,15 +4,21 @@ Documentación de endpoints del sistema Avicontrol.
 
 ---
 
-#  Base URL
+##  Base URL
 
 ```txt
 http://localhost:3001/api
-🐓 Gallinas
-Obtener todas las gallinas
-GET
+```
+---
+## 🐓 Gallinas
+### Obtener todas las gallinas
+#### GET
+```
 /api/gallinas
-Respuesta
+```
+
+#### Respuesta
+```
 [
   {
     "id": 1,
@@ -23,20 +29,30 @@ Respuesta
     "galpon_id": 1
   }
 ]
-Crear gallina
-POST
+``` 
+
+#### Crear gallina
+#### POST
+```
 /api/gallinas
-Body
+```
+#### Body
+```
 {
   "codigo": "G010",
   "raza": "Isa Brown",
   "edad": 8,
   "galpon_id": 1
 }
-Actualizar gallina
-PUT
+```
+
+#### Actualizar gallina
+#### PUT
+```
 /api/gallinas/:id
-Body
+```
+#### Body
+```
 {
   "codigo": "G001",
   "raza": "Hy Line",
@@ -44,14 +60,23 @@ Body
   "estado": "activa",
   "galpon_id": 1
 }
-Eliminar gallina
-DELETE
+```
+
+#### Eliminar gallina
+#### DELETE
+```
 /api/gallinas/:id
-🏠 Galpones
-Obtener galpones
-GET
+```
+
+## Galpones
+#### Obtener galpones
+#### GET
+```
 /api/galpones
-Respuesta
+```
+
+### Respuesta
+```
 [
   {
     "id": 1,
@@ -59,19 +84,28 @@ Respuesta
     "capacidad": 100
   }
 ]
-Crear galpón
-POST
+```
+
+#### Crear galpón
+#### POST
+```
 /api/galpones
-Body
+```
+#### Body
+```
 {
   "nombre": "Galpón Sur",
   "capacidad": 150
-}
-🥚 Producción
-Obtener producción diaria
-GET
+}`
+```
+## Producción
+#### Obtener producción diaria
+#### GET
+```
 /api/produccion
-Respuesta
+```
+#### Respuesta
+```
 [
   {
     "id": 1,
@@ -83,10 +117,14 @@ Respuesta
     "alimento_kg": 25
   }
 ]
-Registrar producción
-POST
+```
+### Registrar producción
+#### POST
+```
 /api/produccion
-Body
+```
+#### Body
+``` 
 {
   "galpon_id": 1,
   "fecha": "2026-05-07",
@@ -96,10 +134,14 @@ Body
   "alimento_kg": 25,
   "observaciones": "Producción estable"
 }
-✅ Estados HTTP
-Código	Significado
-200	OK
-201	Creado
-400	Datos inválidos
-404	No encontrado
-500	Error interno
+```
+
+### Estados HTTP
+
+|Código|	Significado|
+| :--- |:---|
+|200|	OK|
+|201|	Creado|
+|400|	Datos| inválidos|
+|404|	No encontrado|
+|500|Error interno|
