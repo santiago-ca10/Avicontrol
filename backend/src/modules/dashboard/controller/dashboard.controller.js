@@ -2,15 +2,13 @@ const dashboardService =
     require('../service/dashboard.service');
 
 
-// ===============================
-// RESUMEN GENERAL
-// ===============================
-exports.getResumen = async (req, res) => {
+// GET DASHBOARD
+exports.getDashboardStats = async (req, res) => {
 
     try {
 
         const data =
-            await dashboardService.getResumen();
+            await dashboardService.getDashboardStats();
 
         res.json(data);
 
@@ -21,4 +19,5 @@ exports.getResumen = async (req, res) => {
         });
 
     }
+
 };

@@ -1,56 +1,96 @@
 const db = require('../../../config/db');
 
-// GET ALL
-exports.getAll = async () => {
-    const [rows] = await db.query(`
-        SELECT g.*, ga.nombre AS galpon
-        FROM gallinas g
-        LEFT JOIN galpones ga ON g.galpon_id = ga.id
-    `);
-    return rows;
-};
+const GallinasPort =
+    require('../domain/gallinas.port');
 
-// GET BY ID
-exports.getById = async (id) => {
-    const [rows] = await db.query(
-        'SELECT * FROM gallinas WHERE id = ?',
-        [id]
-    );
-    return rows[0];
-};
+class GallinasRepository extends GallinasPort {
 
-// CREATE
-exports.create = async (data) => {
-    const { codigo, raza, edad, galpon_id } = data;
+    async getAll() {
 
-    const [result] = await db.query(`
-        INSERT INTO gallinas
-        (codigo, raza, edad, galpon_id)
-        VALUES (?, ?, ?, ?)
-    `, [codigo, raza, edad, galpon_id]);
+        const [rows] = await db.query(`
+            SELECT g.*, ga.nombre AS galpon
+            FROM gallinas g
+            LEFT JOIN galpones ga
+                ON g.galpon_id = ga.id
+        `);
 
-    return result;
-};
+        return rows;
+    }
 
-// UPDATE
-exports.update = async (id, data) => {
-    const { codigo, raza, edad, estado, galpon_id } = data;
+    async getById(id) {
 
-    const [result] = await db.query(`
-        UPDATE gallinas
-        SET codigo = ?, raza = ?, edad = ?, estado = ?, galpon_id = ?
-        WHERE id = ?
-    `, [codigo, raza, edad, estado, galpon_id, id]);
+        const [rows] = await db.query(
+            'SELECT * FROM gallinas WHERE id = ?',
+            [id]
+        );
 
-    return result;
-};
+        return rows[0];
+    }
 
-// DELETE
-exports.delete = async (id) => {
-    const [result] = await db.query(
-        'DELETE FROM gallinas WHERE id = ?',
-        [id]
-    );
+    async create(data) {
 
-    return result;
-};
+        const {
+            codigo,
+            raza,
+            edad,
+            galpon_id
+        } = data;
+
+        const [result] = await db.query(`
+            INSERT INTO gallinas
+            (codigo, raza, edad, galpon_id)
+            VALUES (?, ?, ?, ?)
+        `, [
+            codigo,
+            raza,
+            edad,
+            galpon_id
+        ]);
+
+        return result;
+    }
+
+    async update(id, data) {
+
+        const {
+            codigo,
+            raza,
+            edad,
+            estado,
+            galpon_id
+        } = data;
+
+        const [result] = await db.query(`
+            UPDATE gallinas
+            SET
+                codigo = ?,
+                raza = ?,
+                edad = ?,
+                estado = ?,
+                galpon_id = ?
+            WHERE id = ?
+        `, [
+            codigo,
+            raza,
+            edad,
+            estado,
+            galpon_id,
+            id
+        ]);
+
+        return result;
+    }
+
+    async delete(id) {
+
+        const [result] = await db.query(
+            'DELETE FROM gallinas WHERE id = ?',
+            [id]
+        );
+
+        return result;
+    }
+
+}
+
+module.exports = GallinasRepository;

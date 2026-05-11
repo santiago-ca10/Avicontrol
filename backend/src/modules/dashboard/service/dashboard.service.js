@@ -1,38 +1,19 @@
+const DashboardRepository =
+    require('../repository/dashboard.repository');
+
+const Dashboard =
+    require('../domain/dashboard.model');
+
 const dashboardRepository =
-    require('./repository/dashboard.repository');
+    new DashboardRepository();
 
 
-// ===============================
-// RESUMEN GENERAL DEL SISTEMA
-// ===============================
-exports.getResumen = async () => {
+// GET STATS
+exports.getDashboardStats = async () => {
 
-    const gallinas =
-        await dashboardRepository.countGallinas();
+    const stats =
+        await dashboardRepository.getStats();
 
-    const produccion =
-        await dashboardRepository.countProduccion();
+    return new Dashboard(stats);
 
-    const huevos =
-        await dashboardRepository.totalHuevos();
-
-    const noProduccion =
-        await dashboardRepository.totalNoProduccion();
-
-    const productividad =
-        produccion > 0
-            ? Math.round(
-                (huevos / produccion) * 100
-            )
-            : 0;
-
-    return {
-
-        gallinas,
-        produccion,
-        huevos,
-        noProduccion,
-        productividad
-
-    };
 };

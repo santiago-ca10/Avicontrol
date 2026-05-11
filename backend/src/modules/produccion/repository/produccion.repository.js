@@ -1,24 +1,39 @@
 const db = require('../../../config/db');
 
+const ProduccionPort =
+    require('../domain/produccion.port');
 
-// ===============================
-// CREAR
-// ===============================
-exports.create = async (data) => {
+class ProduccionRepository extends ProduccionPort {
 
-    const {
-        galpon_id,
-        fecha,
-        huevos = 0,
-        aves_activas = 0,
-        mortalidad = 0,
-        alimento_kg = 0,
-        observaciones = null
-    } = data;
+    async getAll() {
 
-    const [result] = await db.query(`
-        INSERT INTO produccion_diaria
-        (
+        const [rows] = await db.query(`
+            SELECT
+                p.*,
+                g.nombre AS galpon
+            FROM produccion_diaria p
+            JOIN galpones g
+                ON p.galpon_id = g.id
+            ORDER BY p.fecha DESC
+        `);
+
+        return rows;
+    }
+
+    async getById(id) {
+
+        const [rows] = await db.query(`
+            SELECT *
+            FROM produccion_diaria
+            WHERE id = ?
+        `, [id]);
+
+        return rows[0];
+    }
+
+    async create(data) {
+
+        const {
             galpon_id,
             fecha,
             huevos,
@@ -26,43 +41,43 @@ exports.create = async (data) => {
             mortalidad,
             alimento_kg,
             observaciones
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, [
-        galpon_id,
-        fecha,
-        huevos,
-        aves_activas,
-        mortalidad,
-        alimento_kg,
-        observaciones
-    ]);
+        } = data;
 
-    return result;
-};
+        const [result] = await db.query(`
+            INSERT INTO produccion_diaria
+            (
+                galpon_id,
+                fecha,
+                huevos,
+                aves_activas,
+                mortalidad,
+                alimento_kg,
+                observaciones
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [
+            galpon_id,
+            fecha,
+            huevos,
+            aves_activas,
+            mortalidad,
+            alimento_kg,
+            observaciones
+        ]);
 
+        return result;
+    }
 
-// ===============================
-// OBTENER TODO
-// ===============================
-exports.getAll = async () => {
+    async delete(id) {
 
-    const [rows] = await db.query(`
-        SELECT 
-            p.id,
-            p.galpon_id,
-            p.fecha,
-            p.huevos,
-            p.aves_activas,
-            p.mortalidad,
-            p.alimento_kg,
-            p.observaciones,
-            g.nombre AS galpon
-        FROM produccion_diaria p
-        JOIN galpones g
-            ON p.galpon_id = g.id
-        ORDER BY p.fecha DESC, p.id DESC
-    `);
+        const [result] = await db.query(
+            'DELETE FROM produccion_diaria WHERE id = ?',
+            [id]
+        );
 
-    return rows;
-};
+        return result;
+    }
+
+}
+
+module.exports = ProduccionRepository;

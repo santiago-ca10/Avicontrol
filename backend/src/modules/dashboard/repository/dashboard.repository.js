@@ -1,56 +1,47 @@
 const db = require('../../../config/db');
 
+const DashboardPort =
+    require('../domain/dashboard.port');
 
-// ===============================
-// TOTAL GALLINAS
-// ===============================
-exports.countGallinas = async () => {
+class DashboardRepository extends DashboardPort {
 
-    const [rows] = await db.query(
-        'SELECT COUNT(*) AS total FROM gallinas'
-    );
+    async getStats() {
 
-    return rows[0].total;
-};
+        // TOTAL GALLINAS
+        const [gallinas] = await db.query(`
+            SELECT COUNT(*) AS total
+            FROM gallinas
+        `);
 
+        // TOTAL GALPONES
+        const [galpones] = await db.query(`
+            SELECT COUNT(*) AS total
+            FROM galpones
+        `);
 
-// ===============================
-// TOTAL REGISTROS PRODUCCIÓN
-// ===============================
-exports.countProduccion = async () => {
+        // PRODUCCIÓN HOY
+        const [produccion] = await db.query(`
+            SELECT IFNULL(SUM(huevos), 0) AS total
+            FROM produccion_diaria
+            WHERE fecha = CURDATE()
+        `);
 
-    const [rows] = await db.query(
-        'SELECT COUNT(*) AS total FROM produccion_diaria'
-    );
+        // MORTALIDAD HOY
+        const [mortalidad] = await db.query(`
+            SELECT IFNULL(SUM(mortalidad), 0) AS total
+            FROM produccion_diaria
+            WHERE fecha = CURDATE()
+        `);
 
-    return rows[0].total;
-};
+        return {
+            totalGallinas: gallinas[0].total,
+            totalGalpones: galpones[0].total,
+            produccionHoy: produccion[0].total,
+            mortalidadHoy: mortalidad[0].total
+        };
 
+    }
 
-// ===============================
-// TOTAL HUEVOS
-// ===============================
-exports.totalHuevos = async () => {
+}
 
-    const [rows] = await db.query(`
-        SELECT COALESCE(SUM(huevos),0) AS total
-        FROM produccion_diaria
-    `);
-
-    return rows[0].total;
-};
-
-
-// ===============================
-// NO PRODUCCIÓN
-// ===============================
-exports.totalNoProduccion = async () => {
-
-    const [rows] = await db.query(`
-        SELECT COUNT(*) AS total
-        FROM produccion_diaria
-        WHERE huevos = 0
-    `);
-
-    return rows[0].total;
-};
+module.exports = DashboardRepository;

@@ -1,16 +1,14 @@
-const galponService =
+const galponesService =
     require('../service/galpones.service');
 
 
-// ===============================
-// OBTENER TODOS
-// ===============================
+// GET ALL
 exports.getAllGalpones = async (req, res) => {
 
     try {
 
         const data =
-            await galponService.getAllGalpones();
+            await galponesService.getAllGalpones();
 
         res.json(data);
 
@@ -21,12 +19,11 @@ exports.getAllGalpones = async (req, res) => {
         });
 
     }
+
 };
 
 
-// ===============================
-// OBTENER POR ID
-// ===============================
+// GET BY ID
 exports.getGalponById = async (req, res) => {
 
     try {
@@ -34,7 +31,7 @@ exports.getGalponById = async (req, res) => {
         const { id } = req.params;
 
         const data =
-            await galponService.getGalponById(id);
+            await galponesService.getGalponById(id);
 
         res.json(data);
 
@@ -45,22 +42,23 @@ exports.getGalponById = async (req, res) => {
         });
 
     }
+
 };
 
 
-// ===============================
-// CREAR
-// ===============================
+// CREATE
 exports.createGalpon = async (req, res) => {
 
     try {
 
-        const id =
-            await galponService.createGalpon(req.body);
+        const result =
+            await galponesService.createGalpon(
+                req.body
+            );
 
         res.json({
             message: 'Galpón creado',
-            id
+            id: result.insertId
         });
 
     } catch (error) {
@@ -70,19 +68,18 @@ exports.createGalpon = async (req, res) => {
         });
 
     }
+
 };
 
 
-// ===============================
-// ACTUALIZAR
-// ===============================
+// UPDATE
 exports.updateGalpon = async (req, res) => {
 
     try {
 
         const { id } = req.params;
 
-        await galponService.updateGalpon(
+        await galponesService.updateGalpon(
             id,
             req.body
         );
@@ -98,19 +95,18 @@ exports.updateGalpon = async (req, res) => {
         });
 
     }
+
 };
 
 
-// ===============================
-// ELIMINAR
-// ===============================
+// DELETE
 exports.deleteGalpon = async (req, res) => {
 
     try {
 
         const { id } = req.params;
 
-        await galponService.deleteGalpon(id);
+        await galponesService.deleteGalpon(id);
 
         res.json({
             message: 'Galpón eliminado'
@@ -123,4 +119,5 @@ exports.deleteGalpon = async (req, res) => {
         });
 
     }
+
 };

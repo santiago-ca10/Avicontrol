@@ -1,10 +1,43 @@
-const produccionRepository =
+const ProduccionRepository =
     require('../repository/produccion.repository');
 
+const Produccion =
+    require('../domain/produccion.model');
 
-// ===============================
-// CREAR PRODUCCIÓN
-// ===============================
+const produccionRepository =
+    new ProduccionRepository();
+
+
+// GET ALL
+exports.getAllProduccion = async () => {
+
+    return await produccionRepository.getAll();
+
+};
+
+
+// GET BY ID
+exports.getProduccionById = async (id) => {
+
+    if (!id) {
+        throw new Error('ID requerido');
+    }
+
+    const produccion =
+        await produccionRepository.getById(id);
+
+    if (!produccion) {
+        throw new Error(
+            'Registro de producción no encontrado'
+        );
+    }
+
+    return new Produccion(produccion);
+
+};
+
+
+// CREATE
 exports.createProduccion = async (data) => {
 
     const {
@@ -17,7 +50,6 @@ exports.createProduccion = async (data) => {
         observaciones
     } = data;
 
-    // 🔹 VALIDACIONES
     if (!galpon_id) {
         throw new Error('Galpón obligatorio');
     }
@@ -27,46 +59,60 @@ exports.createProduccion = async (data) => {
     }
 
     if (huevos < 0) {
-        throw new Error('Huevos no pueden ser negativos');
+        throw new Error(
+            'Huevos no pueden ser negativos'
+        );
     }
 
-    if (aves_activas < 0) {
-        throw new Error('Aves activas inválidas');
+    if (aves_activas <= 0) {
+        throw new Error(
+            'Aves activas inválidas'
+        );
     }
 
     if (mortalidad < 0) {
-        throw new Error('Mortalidad inválida');
+        throw new Error(
+            'Mortalidad inválida'
+        );
     }
 
     if (alimento_kg < 0) {
-        throw new Error('Alimento inválido');
+        throw new Error(
+            'Alimento inválido'
+        );
     }
 
-    // 🔹 REGLA DE NEGOCIO
-    // no más huevos que aves activas
     if (huevos > aves_activas) {
         throw new Error(
             'No puede haber más huevos que aves activas'
         );
     }
 
-    return await produccionRepository.create({
-        galpon_id,
-        fecha,
-        huevos,
-        aves_activas,
-        mortalidad,
-        alimento_kg,
-        observaciones
-    });
+    const produccion =
+        new Produccion({
+            galpon_id,
+            fecha,
+            huevos,
+            aves_activas,
+            mortalidad,
+            alimento_kg,
+            observaciones
+        });
+
+    return await produccionRepository.create(
+        produccion
+    );
+
 };
 
 
-// ===============================
-// OBTENER TODO
-// ===============================
-exports.getAllProduccion = async () => {
+// DELETE
+exports.deleteProduccion = async (id) => {
 
-    return await produccionRepository.getAll();
+    if (!id) {
+        throw new Error('ID requerido');
+    }
+
+    return await produccionRepository.delete(id);
 
 };

@@ -1,74 +1,80 @@
 const db = require('../../../config/db');
 
+const GalponesPort =
+    require('../domain/galpones.port');
 
-// ===============================
-// OBTENER TODOS
-// ===============================
-exports.getAll = async () => {
+class GalponesRepository extends GalponesPort {
 
-    const [rows] = await db.query(
-        'SELECT * FROM galpones'
-    );
+    async getAll() {
 
-    return rows;
-};
+        const [rows] = await db.query(
+            'SELECT * FROM galpones'
+        );
 
+        return rows;
+    }
 
-// ===============================
-// OBTENER POR ID
-// ===============================
-exports.getById = async (id) => {
+    async getById(id) {
 
-    const [rows] = await db.query(
-        'SELECT * FROM galpones WHERE id = ?',
-        [id]
-    );
+        const [rows] = await db.query(
+            'SELECT * FROM galpones WHERE id = ?',
+            [id]
+        );
 
-    return rows[0];
-};
+        return rows[0];
+    }
 
+    async create(data) {
 
-// ===============================
-// CREAR
-// ===============================
-exports.create = async (nombre, capacidad) => {
+        const {
+            nombre,
+            capacidad
+        } = data;
 
-    const [result] = await db.query(
-        `INSERT INTO galpones
-        (nombre, capacidad)
-        VALUES (?, ?)`,
-        [nombre, capacidad]
-    );
+        const [result] = await db.query(`
+            INSERT INTO galpones
+            (nombre, capacidad)
+            VALUES (?, ?)
+        `, [
+            nombre,
+            capacidad
+        ]);
 
-    return result.insertId;
-};
+        return result;
+    }
 
+    async update(id, data) {
 
-// ===============================
-// ACTUALIZAR
-// ===============================
-exports.update = async (id, nombre, capacidad) => {
+        const {
+            nombre,
+            capacidad
+        } = data;
 
-    await db.query(
-        `UPDATE galpones
-        SET nombre = ?, capacidad = ?
-        WHERE id = ?`,
-        [nombre, capacidad, id]
-    );
+        const [result] = await db.query(`
+            UPDATE galpones
+            SET
+                nombre = ?,
+                capacidad = ?
+            WHERE id = ?
+        `, [
+            nombre,
+            capacidad,
+            id
+        ]);
 
-    return true;
-};
+        return result;
+    }
 
+    async delete(id) {
 
-// ===============================
-// ELIMINAR
-// ===============================
-exports.delete = async (id) => {
+        const [result] = await db.query(
+            'DELETE FROM galpones WHERE id = ?',
+            [id]
+        );
 
-    await db.query(
-        'DELETE FROM galpones WHERE id = ?',
-        [id]
-    );
+        return result;
+    }
 
-    return true;
-};
+}
+
+module.exports = GalponesRepository;

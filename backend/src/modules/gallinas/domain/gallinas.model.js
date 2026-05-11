@@ -1,14 +1,14 @@
-// Gallina Model
-
 class Gallina {
-    constructor(
+
+    constructor({
         id,
         codigo,
         raza,
         edad,
         estado,
         galpon_id
-    ) {
+    }) {
+
         this.id = id;
         this.codigo = codigo;
         this.raza = raza;
@@ -16,6 +16,11 @@ class Gallina {
         this.estado = estado;
         this.galpon_id = galpon_id;
     }
+
+    esProductiva() {
+        return this.edad >= 5;
+    }
+
 }
 
 module.exports = Gallina;

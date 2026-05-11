@@ -1,9 +1,18 @@
-const gallinasRepository = require('../repository/gallinas.repository');
+const GallinasRepository =
+    require('../repository/gallinas.repository');
+
+const Gallina =
+    require('../domain/gallinas.model');
+
+const gallinasRepository =
+    new GallinasRepository();
 
 
 // GET ALL
 exports.getAllGallinas = async () => {
+
     return await gallinasRepository.getAll();
+
 };
 
 
@@ -21,14 +30,19 @@ exports.getGallinaById = async (id) => {
         throw new Error('Gallina no encontrada');
     }
 
-    return gallina;
+    return new Gallina(gallina);
 };
 
 
 // CREATE
 exports.createGallina = async (data) => {
 
-    let { codigo, raza, edad, galpon_id } = data;
+    let {
+        codigo,
+        raza,
+        edad,
+        galpon_id
+    } = data;
 
     if (!codigo || codigo.trim() === '') {
         throw new Error('Código obligatorio');
@@ -40,14 +54,6 @@ exports.createGallina = async (data) => {
 
     codigo = codigo.trim().toUpperCase();
 
-    if (raza) {
-        raza = raza
-            .toLowerCase()
-            .split(' ')
-            .map(p => p.charAt(0).toUpperCase() + p.slice(1))
-            .join(' ');
-    }
-
     const existentes =
         await gallinasRepository.getAll();
 
@@ -56,15 +62,19 @@ exports.createGallina = async (data) => {
     );
 
     if (existe) {
-        throw new Error('Ya existe una gallina con ese código');
+        throw new Error(
+            'Ya existe una gallina con ese código'
+        );
     }
 
-    return await gallinasRepository.create({
+    const gallina = new Gallina({
         codigo,
         raza,
         edad,
         galpon_id
     });
+
+    return await gallinasRepository.create(gallina);
 };
 
 
@@ -75,7 +85,10 @@ exports.updateGallina = async (id, data) => {
         throw new Error('ID requerido');
     }
 
-    return await gallinasRepository.update(id, data);
+    return await gallinasRepository.update(
+        id,
+        data
+    );
 };
 
 

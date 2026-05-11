@@ -2,9 +2,51 @@ const produccionService =
     require('../service/produccion.service');
 
 
-// ===============================
-// CREAR PRODUCCIÓN
-// ===============================
+// GET ALL
+exports.getAllProduccion = async (req, res) => {
+
+    try {
+
+        const data =
+            await produccionService.getAllProduccion();
+
+        res.json(data);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
+// GET BY ID
+exports.getProduccionById = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const data =
+            await produccionService.getProduccionById(id);
+
+        res.json(data);
+
+    } catch (error) {
+
+        res.status(404).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
+// CREATE
 exports.createProduccion = async (req, res) => {
 
     try {
@@ -26,26 +68,29 @@ exports.createProduccion = async (req, res) => {
         });
 
     }
+
 };
 
 
-// ===============================
-// OBTENER TODA LA PRODUCCIÓN
-// ===============================
-exports.getAllProduccion = async (req, res) => {
+// DELETE
+exports.deleteProduccion = async (req, res) => {
 
     try {
 
-        const data =
-            await produccionService.getAllProduccion();
+        const { id } = req.params;
 
-        res.json(data);
+        await produccionService.deleteProduccion(id);
+
+        res.json({
+            message: 'Producción eliminada'
+        });
 
     } catch (error) {
 
-        res.status(500).json({
+        res.status(400).json({
             message: error.message
         });
 
     }
+
 };

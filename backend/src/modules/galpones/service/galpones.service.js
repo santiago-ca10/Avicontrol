@@ -1,16 +1,22 @@
-const galponRepository =
+const GalponesRepository =
     require('../repository/galpones.repository');
 
-// ===============================
-// OBTENER TODOS
-// ===============================
+const Galpon =
+    require('../domain/galpones.model');
+
+const galponesRepository =
+    new GalponesRepository();
+
+
+// GET ALL
 exports.getAllGalpones = async () => {
-    return await galponRepository.getAll();
+
+    return await galponesRepository.getAll();
+
 };
 
-// ===============================
-// OBTENER POR ID
-// ===============================
+
+// GET BY ID
 exports.getGalponById = async (id) => {
 
     if (!id) {
@@ -18,21 +24,24 @@ exports.getGalponById = async (id) => {
     }
 
     const galpon =
-        await galponRepository.getById(id);
+        await galponesRepository.getById(id);
 
     if (!galpon) {
         throw new Error('Galpón no encontrado');
     }
 
-    return galpon;
+    return new Galpon(galpon);
+
 };
 
-// ===============================
-// CREAR
-// ===============================
+
+// CREATE
 exports.createGalpon = async (data) => {
 
-    let { nombre, capacidad } = data;
+    let {
+        nombre,
+        capacidad
+    } = data;
 
     if (!nombre || nombre.trim() === '') {
         throw new Error('Nombre obligatorio');
@@ -44,31 +53,41 @@ exports.createGalpon = async (data) => {
 
     nombre = nombre.trim();
 
-    return await galponRepository.create(nombre, capacidad);
+    const galpon =
+        new Galpon({
+            nombre,
+            capacidad
+        });
+
+    return await galponesRepository.create(
+        galpon
+    );
+
 };
 
-// ===============================
-// ACTUALIZAR
-// ===============================
-exports.updateGalpon = async (id, data) => {
 
-    const { nombre, capacidad } = data;
+// UPDATE
+exports.updateGalpon = async (id, data) => {
 
     if (!id) {
         throw new Error('ID requerido');
     }
 
-    return await galponRepository.update(id, nombre, capacidad);
+    return await galponesRepository.update(
+        id,
+        data
+    );
+
 };
 
-// ===============================
-// ELIMINAR
-// ===============================
+
+// DELETE
 exports.deleteGalpon = async (id) => {
 
     if (!id) {
         throw new Error('ID requerido');
     }
 
-    return await galponRepository.delete(id);
+    return await galponesRepository.delete(id);
+
 };
