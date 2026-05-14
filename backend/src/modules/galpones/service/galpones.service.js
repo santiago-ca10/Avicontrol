@@ -34,6 +34,22 @@ exports.getGalponById = async (id) => {
 
 };
 
+// GET STATS
+exports.getGalponStats = async (id) => {
+
+    if (!id) {
+        throw new Error('ID requerido');
+    }
+
+    const stats =
+        await galponesRepository.stats(id);
+
+    if (!stats) {
+        throw new Error('Galpón no encontrado');
+    }
+
+    return stats;
+};
 
 // CREATE
 exports.createGalpon = async (data) => {

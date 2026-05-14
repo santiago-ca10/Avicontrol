@@ -2,13 +2,15 @@ const dashboardService =
     require('../service/dashboard.service');
 
 
+// ======================
 // GET DASHBOARD
-exports.getDashboardStats = async (req, res) => {
+// ======================
+exports.getDashboard = async (req, res) => {
 
     try {
 
         const data =
-            await dashboardService.getDashboardStats();
+            await dashboardService.getDashboard();
 
         res.json(data);
 

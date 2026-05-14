@@ -75,6 +75,37 @@ class GalponesRepository extends GalponesPort {
         return result;
     }
 
+    // STATS
+    async stats(id) {
+
+        const [rows] = await db.query(`
+            SELECT
+                g.id,
+                g.nombre,
+                g.capacidad,
+
+                COUNT(ga.id) AS total_gallinas,
+
+                ROUND(
+                    (
+                        COUNT(ga.id) / g.capacidad
+                    ) * 100,
+                    2
+                ) AS ocupacion
+
+            FROM galpones g
+
+            LEFT JOIN gallinas ga
+                ON g.id = ga.galpon_id
+
+            WHERE g.id = ?
+
+            GROUP BY g.id
+        `, [id]);
+
+        return rows[0];
+    }
+
 }
 
 module.exports = GalponesRepository;

@@ -1,109 +1,145 @@
 import { useEffect, useState } from 'react';
+
 import API from '../services/api';
 
 function DashboardPage() {
 
-  const [gallinas, setGallinas] = useState([]);
-  const [produccion, setProduccion] = useState([]);
+    const [stats, setStats] = useState({
+        totalGallinas: 0,
+        totalGalpones: 0,
+        produccionHoy: 0,
+        mortalidadHoy: 0
+    });
 
-  useEffect(() => {
+    const [loading, setLoading] = useState(true);
 
-    fetchGallinas();
-    fetchProduccion();
+    useEffect(() => {
 
-  }, []);
+        fetchDashboard();
 
-  // 🔹 OBTENER GALLINAS
-  const fetchGallinas = () => {
+    }, []);
 
-    API.get('/gallinas')
-      .then(res => setGallinas(res.data))
-      .catch(err => console.error(err));
-  };
 
-  // 🔹 OBTENER PRODUCCIÓN
-  const fetchProduccion = () => {
+    // =========================
+    // FETCH DASHBOARD
+    // =========================
+    const fetchDashboard = async () => {
 
-    API.get('/produccion')
-      .then(res => setProduccion(res.data))
-      .catch(err => console.error(err));
-  };
+        try {
 
-  // 🔥 TOTALES
+            const res =
+                await API.get('/dashboard');
 
-  const totalHuevos = produccion.reduce(
-    (acc, p) => acc + Number(p.huevos),
-    0
-  );
+            setStats(res.data);
 
-  const totalAves = produccion.reduce(
-    (acc, p) => acc + Number(p.aves_activas),
-    0
-  );
+        } catch (error) {
 
-  const totalMortalidad = produccion.reduce(
-    (acc, p) => acc + Number(p.mortalidad),
-    0
-  );
+            console.error(error);
 
-  const totalAlimento = produccion.reduce(
-    (acc, p) => acc + Number(p.alimento_kg || 0),
-    0
-  );
+        } finally {
 
-  // 📈 PRODUCTIVIDAD
-  const productividad =
-    totalAves > 0
-      ? ((totalHuevos / totalAves) * 100).toFixed(1)
-      : 0;
+            setLoading(false);
 
-  return (
-    <div className="container">
+        }
 
-      <h1>📊 Dashboard Avícola</h1>
+    };
 
-      <div className="grid">
 
-        {/* GALLINAS */}
-        <div className="card stat">
-          <h2>{gallinas.length}</h2>
-          <p>🐓 Gallinas registradas</p>
+    // =========================
+    // LOADING
+    // =========================
+    if (loading) {
+
+        return (
+            <div className="container">
+                <p>Cargando dashboard...</p>
+            </div>
+        );
+
+    }
+
+
+    // =========================
+    // UI
+    // =========================
+    return (
+
+        <div className="container">
+
+            <div className="page-header">
+
+                <h1>Dashboard</h1>
+
+                <p>
+                    Resumen general del sistema avícola
+                </p>
+
+            </div>
+
+
+            <div className="stats-grid">
+
+                {/* TOTAL GALLINAS */}
+                <div className="stat-card">
+
+                    <h2>
+                        {stats.totalGallinas}
+                    </h2>
+
+                    <p>
+                        Gallinas registradas
+                    </p>
+
+                </div>
+
+
+                {/* TOTAL GALPONES */}
+                <div className="stat-card">
+
+                    <h2>
+                        {stats.totalGalpones}
+                    </h2>
+
+                    <p>
+                        Galpones
+                    </p>
+
+                </div>
+
+
+                {/* PRODUCCIÓN */}
+                <div className="stat-card">
+
+                    <h2>
+                        {stats.produccionHoy}
+                    </h2>
+
+                    <p>
+                        Huevos hoy
+                    </p>
+
+                </div>
+
+
+                {/* MORTALIDAD */}
+                <div className="stat-card">
+
+                    <h2>
+                        {stats.mortalidadHoy}
+                    </h2>
+
+                    <p>
+                        Mortalidad hoy
+                    </p>
+
+                </div>
+
+            </div>
+
         </div>
 
-        {/* HUEVOS */}
-        <div className="card stat">
-          <h2>{totalHuevos}</h2>
-          <p>🥚 Huevos producidos</p>
-        </div>
+    );
 
-        {/* AVES */}
-        <div className="card stat">
-          <h2>{totalAves}</h2>
-          <p>🐓 Aves activas</p>
-        </div>
-
-        {/* PRODUCTIVIDAD */}
-        <div className="card stat">
-          <h2>{productividad}%</h2>
-          <p>📈 Productividad</p>
-        </div>
-
-        {/* MORTALIDAD */}
-        <div className="card stat">
-          <h2>{totalMortalidad}</h2>
-          <p>☠️ Mortalidad</p>
-        </div>
-
-        {/* ALIMENTO */}
-        <div className="card stat">
-          <h2>{totalAlimento} kg</h2>
-          <p>🍽️ Alimento consumido</p>
-        </div>
-
-      </div>
-
-    </div>
-  );
 }
 
 export default DashboardPage;

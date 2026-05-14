@@ -3,15 +3,15 @@ const express = require('express');
 const router = express.Router();
 
 const dashboardController =
-    require('./controller/dashboard.controller');
+    require('../controller/dashboard.controller');
 
 
-// ===============================
-// DASHBOARD RESUMEN
-// ===============================
+// ======================
+// DASHBOARD
+// ======================
 router.get(
     '/',
-    dashboardController.getResumen
+    dashboardController.getDashboard
 );
 
 module.exports = router;

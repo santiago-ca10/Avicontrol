@@ -46,6 +46,29 @@ exports.getGalponById = async (req, res) => {
 };
 
 
+// GET STATS
+exports.getGalponStats = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const data =
+            await galponesService.getGalponStats(id);
+
+        res.json(data);
+
+    } catch (error) {
+
+        res.status(404).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
 // CREATE
 exports.createGalpon = async (req, res) => {
 

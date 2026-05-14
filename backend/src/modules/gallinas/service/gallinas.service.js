@@ -1,11 +1,17 @@
 const GallinasRepository =
     require('../repository/gallinas.repository');
 
+const GalponesRepository =
+    require('../../galpones/repository/galpones.repository');
+
 const Gallina =
     require('../domain/gallinas.model');
 
 const gallinasRepository =
     new GallinasRepository();
+
+const galponesRepository =
+    new GalponesRepository();
 
 
 // GET ALL
@@ -44,6 +50,10 @@ exports.createGallina = async (data) => {
         galpon_id
     } = data;
 
+    // =========================
+    // VALIDACIONES
+    // =========================
+
     if (!codigo || codigo.trim() === '') {
         throw new Error('Código obligatorio');
     }
@@ -52,7 +62,21 @@ exports.createGallina = async (data) => {
         throw new Error('Edad inválida');
     }
 
-    codigo = codigo.trim().toUpperCase();
+    if (!galpon_id) {
+        throw new Error('Galpón obligatorio');
+    }
+
+    // =========================
+    // NORMALIZAR
+    // =========================
+
+    codigo = codigo
+        .trim()
+        .toUpperCase();
+
+    // =========================
+    // VALIDAR CÓDIGO ÚNICO
+    // =========================
 
     const existentes =
         await gallinasRepository.getAll();
@@ -67,6 +91,34 @@ exports.createGallina = async (data) => {
         );
     }
 
+    // =========================
+    // VALIDAR CAPACIDAD GALPÓN
+    // =========================
+
+    const galpon =
+        await galponesRepository.stats(
+            galpon_id
+        );
+
+    if (!galpon) {
+        throw new Error(
+            'Galpón no encontrado'
+        );
+    }
+
+    if (
+        galpon.total_gallinas >=
+        galpon.capacidad
+    ) {
+        throw new Error(
+            'El galpón ya alcanzó su capacidad máxima'
+        );
+    }
+
+    // =========================
+    // CREAR ENTIDAD
+    // =========================
+
     const gallina = new Gallina({
         codigo,
         raza,
@@ -74,7 +126,9 @@ exports.createGallina = async (data) => {
         galpon_id
     });
 
-    return await gallinasRepository.create(gallina);
+    return await gallinasRepository.create(
+        gallina
+    );
 };
 
 

@@ -1,19 +1,12 @@
-const DashboardRepository =
+const dashboardRepository =
     require('../repository/dashboard.repository');
 
-const Dashboard =
-    require('../domain/dashboard.model');
 
-const dashboardRepository =
-    new DashboardRepository();
+// ======================
+// GET DASHBOARD
+// ======================
+exports.getDashboard = async () => {
 
-
-// GET STATS
-exports.getDashboardStats = async () => {
-
-    const stats =
-        await dashboardRepository.getStats();
-
-    return new Dashboard(stats);
+    return await dashboardRepository.getDashboardStats();
 
 };

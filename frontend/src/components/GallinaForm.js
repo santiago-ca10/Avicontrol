@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import API from '../services/api';
 
-// 🔹 FORMATEAR RAZA
+// FORMATEAR RAZA
 const formatRaza = (texto) => {
 
   return texto
@@ -17,6 +17,8 @@ function GallinaForm({ onCreated }) {
 
   const [galpones, setGalpones] = useState([]);
 
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     codigo: '',
     raza: '',
@@ -24,16 +26,26 @@ function GallinaForm({ onCreated }) {
     galpon_id: ''
   });
 
-  // 🔹 CARGAR GALPONES
+  // =========================
+  // CARGAR GALPONES
+  // =========================
   useEffect(() => {
+
+    fetchGalpones();
+
+  }, []);
+
+  const fetchGalpones = () => {
 
     API.get('/galpones')
       .then(res => setGalpones(res.data))
       .catch(err => console.error(err));
 
-  }, []);
+  };
 
-  // 🔹 CAMBIOS
+  // =========================
+  // CAMBIOS
+  // =========================
   const handleChange = (e) => {
 
     let {
@@ -41,20 +53,31 @@ function GallinaForm({ onCreated }) {
       value
     } = e.target;
 
-    if (name === 'edad' && value < 0) return;
+    // EDAD NEGATIVA
+    if (name === 'edad' && value < 0) {
+      return;
+    }
 
+    // FORMATEAR RAZA
     if (name === 'raza') {
       value = formatRaza(value);
     }
 
-    setForm({
-      ...form,
+    // FORMATEAR CÓDIGO
+    if (name === 'codigo') {
+      value = value.toUpperCase();
+    }
+
+    setForm(prev => ({
+      ...prev,
       [name]: value
-    });
+    }));
   };
 
-  // 🔹 GUARDAR
-  const handleSubmit = (e) => {
+  // =========================
+  // GUARDAR
+  // =========================
+  const handleSubmit = async (e) => {
 
     e.preventDefault();
 
@@ -64,60 +87,85 @@ function GallinaForm({ onCreated }) {
       form.edad === '' ||
       !form.galpon_id
     ) {
-      alert('Todos los campos son obligatorios');
+      alert('Complete todos los campos');
       return;
     }
 
-    API.post('/gallinas', form)
-      .then(() => {
+    try {
 
-        alert('Gallina creada 🐓');
+      setLoading(true);
 
-        setForm({
-          codigo: '',
-          raza: '',
-          edad: '',
-          galpon_id: ''
-        });
+      await API.post('/gallinas', form);
 
-        if (onCreated) {
-          onCreated();
-        }
+      alert('Gallina registrada correctamente');
 
-      })
-      .catch(err => console.error(err));
+      setForm({
+        codigo: '',
+        raza: '',
+        edad: '',
+        galpon_id: ''
+      });
+
+      fetchGalpones();
+
+      if (onCreated) {
+        onCreated();
+      }
+
+    } catch (error) {
+
+      alert(
+        error.response?.data?.message ||
+        'Error al crear gallina'
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
   };
+
+  // =========================
+  // GALPÓN SELECCIONADO
+  // =========================
+  const galponSeleccionado = galpones.find(
+    g => g.id === Number(form.galpon_id)
+  );
 
   return (
 
     <form onSubmit={handleSubmit}>
 
       <h2>
-        Crear Gallina
+        Registro de Gallinas
       </h2>
 
+      {/* CÓDIGO */}
       <input
         type="text"
         name="codigo"
-        placeholder="Código"
+        placeholder="Código único"
         value={form.codigo}
         onChange={handleChange}
         required
       />
 
+      {/* RAZA */}
       <input
         type="text"
         name="raza"
-        placeholder="Raza (Ej: Isa Brown)"
+        placeholder="Raza"
         value={form.raza}
         onChange={handleChange}
         required
       />
 
+      {/* EDAD */}
       <input
         type="number"
         name="edad"
-        placeholder="Edad (meses)"
+        placeholder="Edad en meses"
         value={form.edad}
         onChange={handleChange}
         min="0"
@@ -133,24 +181,89 @@ function GallinaForm({ onCreated }) {
       >
 
         <option value="">
-          Seleccione galpón
+          Seleccione un galpón
         </option>
 
-        {galpones.map(g => (
+        {galpones.map(g => {
 
-          <option
-            key={g.id}
-            value={g.id}
-          >
-            {g.nombre}
-          </option>
+          const total = Number(g.total_gallinas || 0);
+          const capacidad = Number(g.capacidad || 0);
 
-        ))}
+          const lleno = total >= capacidad;
+
+          return (
+
+            <option
+              key={g.id}
+              value={g.id}
+              disabled={lleno}
+            >
+              {g.nombre}
+              {' — '}
+              {total}/{capacidad}
+              {lleno ? ' (Lleno)' : ''}
+            </option>
+
+          );
+        })}
 
       </select>
 
-      <button type="submit">
-        Guardar
+      {/* INFO GALPÓN */}
+      {galponSeleccionado && (
+
+        <div
+          className="card"
+          style={{
+            marginTop: 16,
+            padding: 14
+          }}
+        >
+
+          <h3 style={{ marginBottom: 10 }}>
+            Información del Galpón
+          </h3>
+
+          <p>
+            <strong>Nombre:</strong>
+            {' '}
+            {galponSeleccionado.nombre}
+          </p>
+
+          <p>
+            <strong>Capacidad:</strong>
+            {' '}
+            {galponSeleccionado.capacidad}
+          </p>
+
+          <p>
+            <strong>Gallinas registradas:</strong>
+            {' '}
+            {galponSeleccionado.total_gallinas || 0}
+          </p>
+
+          <p>
+            <strong>Ocupación:</strong>
+            {' '}
+            {galponSeleccionado.ocupacion || 0}%
+          </p>
+
+        </div>
+
+      )}
+
+      {/* BOTÓN */}
+      <button
+        type="submit"
+        className="btn-save"
+        disabled={loading}
+        style={{ marginTop: 18 }}
+      >
+        {
+          loading
+            ? 'Guardando...'
+            : 'Guardar Gallina'
+        }
       </button>
 
     </form>

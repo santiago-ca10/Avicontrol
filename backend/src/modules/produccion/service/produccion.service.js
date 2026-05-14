@@ -113,6 +113,15 @@ exports.deleteProduccion = async (id) => {
         throw new Error('ID requerido');
     }
 
+    const produccion =
+        await produccionRepository.getById(id);
+
+    if (!produccion) {
+        throw new Error(
+            'Producción no encontrada'
+        );
+    }
+
     return await produccionRepository.delete(id);
 
 };
