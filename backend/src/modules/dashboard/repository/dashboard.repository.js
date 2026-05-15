@@ -1,51 +1,68 @@
 const db = require('../../../config/db');
 
+const DashboardPort =
+    require('../domain/dashboard.port');
 
-// ======================
-// DASHBOARD STATS
-// ======================
-exports.getDashboardStats = async () => {
+class DashboardRepository extends DashboardPort {
 
-    // TOTAL GALLINAS
-    const [gallinas] = await db.query(`
-        SELECT COUNT(*) AS total
-        FROM gallinas
-    `);
+    async getStats() {
 
-    // TOTAL GALPONES
-    const [galpones] = await db.query(`
-        SELECT COUNT(*) AS total
-        FROM galpones
-    `);
+        // TOTAL GALLINAS
+        const [gallinas] = await db.query(`
+            SELECT COUNT(*) AS total
+            FROM gallinas
+        `);
 
-    // PRODUCCIÓN HOY
-    const [produccion] = await db.query(`
-        SELECT IFNULL(SUM(huevos), 0) AS total
-        FROM produccion_diaria
-        WHERE fecha = CURDATE()
-    `);
+        // TOTAL GALPONES
+        const [galpones] = await db.query(`
+            SELECT COUNT(*) AS total
+            FROM galpones
+        `);
 
-    // MORTALIDAD HOY
-    const [mortalidad] = await db.query(`
-        SELECT IFNULL(SUM(mortalidad), 0) AS total
-        FROM produccion_diaria
-        WHERE fecha = CURDATE()
-    `);
+        // TOTAL HUEVOS
+        const [huevos] = await db.query(`
+            SELECT SUM(huevos) AS total
+            FROM produccion_diaria
+        `);
 
-    return {
+        // PROMEDIO PRODUCTIVIDAD
+        const [productividad] = await db.query(`
+            SELECT
+                AVG(
+                    (huevos / aves_activas) * 100
+                ) AS promedio
+            FROM produccion_diaria
+            WHERE aves_activas > 0
+        `);
 
-        totalGallinas:
-            gallinas[0].total,
+        // MORTALIDAD TOTAL
+        const [mortalidad] = await db.query(`
+            SELECT SUM(mortalidad) AS total
+            FROM produccion_diaria
+        `);
 
-        totalGalpones:
-            galpones[0].total,
+        return {
 
-        produccionHoy:
-            produccion[0].total,
+            totalGallinas:
+                gallinas[0].total || 0,
 
-        mortalidadHoy:
-            mortalidad[0].total
+            totalGalpones:
+                galpones[0].total || 0,
 
-    };
+            totalHuevos:
+                huevos[0].total || 0,
 
-};
+            productividadPromedio:
+                Number(
+                    productividad[0].promedio || 0
+                ).toFixed(1),
+
+            mortalidadTotal:
+                mortalidad[0].total || 0
+        };
+
+    }
+
+}
+
+module.exports = DashboardRepository;

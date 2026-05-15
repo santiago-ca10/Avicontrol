@@ -1,12 +1,11 @@
-const dashboardRepository =
+const DashboardRepository =
     require('../repository/dashboard.repository');
 
+const dashboardRepository =
+    new DashboardRepository();
 
-// ======================
-// GET DASHBOARD
-// ======================
-exports.getDashboard = async () => {
+exports.getDashboardStats = async () => {
 
-    return await dashboardRepository.getDashboardStats();
+    return await dashboardRepository.getStats();
 
 };

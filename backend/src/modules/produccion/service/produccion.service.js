@@ -106,6 +106,81 @@ exports.createProduccion = async (data) => {
 };
 
 
+// UPDATE
+exports.updateProduccion = async (
+    id,
+    data
+) => {
+
+    if (!id) {
+        throw new Error('ID requerido');
+    }
+
+    const existe =
+        await produccionRepository.getById(id);
+
+    if (!existe) {
+        throw new Error(
+            'Producción no encontrada'
+        );
+    }
+
+    const {
+        galpon_id,
+        fecha,
+        huevos,
+        aves_activas,
+        mortalidad,
+        alimento_kg,
+        observaciones
+    } = data;
+
+    if (!galpon_id) {
+        throw new Error('Galpón obligatorio');
+    }
+
+    if (!fecha) {
+        throw new Error('Fecha obligatoria');
+    }
+
+    if (huevos < 0) {
+        throw new Error(
+            'Huevos inválidos'
+        );
+    }
+
+    if (aves_activas <= 0) {
+        throw new Error(
+            'Aves activas inválidas'
+        );
+    }
+
+    if (huevos > aves_activas) {
+        throw new Error(
+            'Los huevos no pueden superar las aves'
+        );
+    }
+
+    const produccion =
+        new Produccion({
+            id,
+            galpon_id,
+            fecha,
+            huevos,
+            aves_activas,
+            mortalidad,
+            alimento_kg,
+            observaciones
+        });
+
+    return await produccionRepository.update(
+        id,
+        produccion
+    );
+
+};
+
+
 // DELETE
 exports.deleteProduccion = async (id) => {
 

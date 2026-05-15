@@ -20,9 +20,15 @@ router.post(
     produccionController.createProduccion
 );
 
+router.put(
+    '/:id',
+    produccionController.updateProduccion
+);
+
 router.delete(
     '/:id',
     produccionController.deleteProduccion
 );
 
 module.exports = router;
+

@@ -72,6 +72,33 @@ exports.createProduccion = async (req, res) => {
 };
 
 
+// UPDATE
+exports.updateProduccion = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        await produccionService.updateProduccion(
+            id,
+            req.body
+        );
+
+        res.json({
+            message: 'Producción actualizada'
+        });
+
+    } catch (error) {
+
+        res.status(400).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
 // DELETE
 exports.deleteProduccion = async (req, res) => {
 

@@ -1,25 +1,32 @@
-const dashboardService =
-    require('../service/dashboard.service');
-
-
-// ======================
-// GET DASHBOARD
-// ======================
-exports.getDashboard = async (req, res) => {
-
+exports.getStats = async (req, res) => {
     try {
 
-        const data =
-            await dashboardService.getDashboard();
-
-        res.json(data);
+        res.json({
+            message: 'Stats dashboard'
+        });
 
     } catch (error) {
 
         res.status(500).json({
-            message: error.message
+            error: error.message
         });
 
     }
+};
 
+
+exports.getDashboard = async (req, res) => {
+    try {
+
+        res.json({
+            message: 'Dashboard general'
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            error: error.message
+        });
+
+    }
 };

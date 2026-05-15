@@ -68,6 +68,43 @@ class ProduccionRepository extends ProduccionPort {
         return result;
     }
 
+    async update(id, data) {
+
+        const {
+            galpon_id,
+            fecha,
+            huevos,
+            aves_activas,
+            mortalidad,
+            alimento_kg,
+            observaciones
+        } = data;
+
+        const [result] = await db.query(`
+            UPDATE produccion_diaria
+            SET
+                galpon_id = ?,
+                fecha = ?,
+                huevos = ?,
+                aves_activas = ?,
+                mortalidad = ?,
+                alimento_kg = ?,
+                observaciones = ?
+            WHERE id = ?
+        `, [
+            galpon_id,
+            fecha,
+            huevos,
+            aves_activas,
+            mortalidad,
+            alimento_kg,
+            observaciones,
+            id
+        ]);
+
+        return result;
+    }
+
     async delete(id) {
 
         const [result] = await db.query(
