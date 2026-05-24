@@ -71,20 +71,31 @@ exports.createProduccion = async (data) => {
     }
 
     if (mortalidad < 0) {
-        throw new Error(
-            'Mortalidad inválida'
-        );
+        throw new Error('Mortalidad inválida');
     }
 
     if (alimento_kg < 0) {
-        throw new Error(
-            'Alimento inválido'
-        );
+        throw new Error('Alimento inválido');
     }
 
     if (huevos > aves_activas) {
         throw new Error(
             'No puede haber más huevos que aves activas'
+        );
+    }
+
+    // =========================
+    // VALIDAR DUPLICADO
+    // =========================
+    const duplicado =
+        await produccionRepository.checkDuplicado(
+            galpon_id,
+            fecha
+        );
+
+    if (duplicado) {
+        throw new Error(
+            'Ya existe un registro de producción para este galpón en esa fecha'
         );
     }
 
@@ -107,10 +118,7 @@ exports.createProduccion = async (data) => {
 
 
 // UPDATE
-exports.updateProduccion = async (
-    id,
-    data
-) => {
+exports.updateProduccion = async (id, data) => {
 
     if (!id) {
         throw new Error('ID requerido');
@@ -144,9 +152,7 @@ exports.updateProduccion = async (
     }
 
     if (huevos < 0) {
-        throw new Error(
-            'Huevos inválidos'
-        );
+        throw new Error('Huevos inválidos');
     }
 
     if (aves_activas <= 0) {
@@ -158,6 +164,24 @@ exports.updateProduccion = async (
     if (huevos > aves_activas) {
         throw new Error(
             'Los huevos no pueden superar las aves'
+        );
+    }
+
+    // =========================
+    // VALIDAR DUPLICADO
+    // Excluye el registro actual
+    // para no bloquearse a sí mismo
+    // =========================
+    const duplicado =
+        await produccionRepository.checkDuplicado(
+            galpon_id,
+            fecha,
+            id         // ← excludeId
+        );
+
+    if (duplicado) {
+        throw new Error(
+            'Ya existe otro registro de producción para este galpón en esa fecha'
         );
     }
 

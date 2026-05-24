@@ -1,6 +1,6 @@
 # Avicontrol
 
-Sistema web para la gesti�n de gallinas y el control de producci�n de huevos.
+Sistema web para la gestión de gallinas y el control de producción de huevos.
 
 ## Descripción
 
@@ -10,7 +10,7 @@ Avicontrol es una aplicación cliente-servidor que permite registrar gallinas, a
 
 - `backend/` - API REST con Node.js, Express y MySQL.
 - `frontend/` - Interfaz web creada con React.
-- `docs/` - Documentaci�n de arquitectura y requisitos.
+- `docs/` - Documentación de arquitectura y requisitos.
 
 ## Cómo ejecutar el proyecto
 
@@ -68,7 +68,7 @@ npm start
 
 Luego abre `http://localhost:3000`.
 
-## Documentaci�n
+## Documentación
 
 - `docs/arquitectura.md` - Diseño arquitectónico del sistema.
 - `docs/problema_requisitos.md` - Problema, objetivos y alcance.

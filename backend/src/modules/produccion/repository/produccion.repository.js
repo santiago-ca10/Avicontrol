@@ -31,6 +31,34 @@ class ProduccionRepository extends ProduccionPort {
         return rows[0];
     }
 
+    // =========================
+    // VERIFICAR DUPLICADO
+    // Retorna el registro si ya existe
+    // producción para ese galpón y fecha.
+    // excludeId: al editar, excluye el
+    // registro actual de la validación.
+    // =========================
+    async checkDuplicado(galpon_id, fecha, excludeId = null) {
+
+        let query = `
+            SELECT id
+            FROM produccion_diaria
+            WHERE galpon_id = ?
+            AND DATE(fecha) = DATE(?)
+        `;
+
+        const params = [galpon_id, fecha];
+
+        if (excludeId) {
+            query += ' AND id != ?';
+            params.push(excludeId);
+        }
+
+        const [rows] = await db.query(query, params);
+
+        return rows[0] || null;
+    }
+
     async create(data) {
 
         const {
