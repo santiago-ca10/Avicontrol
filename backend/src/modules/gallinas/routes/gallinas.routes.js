@@ -5,6 +5,7 @@ const router = express.Router();
 const gallinasController =
     require('../controller/gallinas.controller');
 
+// GET ALL (soporta ?galpon_id=X)
 router.get(
     '/',
     gallinasController.getAllGallinas

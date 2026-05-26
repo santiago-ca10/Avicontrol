@@ -5,14 +5,26 @@ const GallinasPort =
 
 class GallinasRepository extends GallinasPort {
 
-    async getAll() {
+    // Soporta filtro opcional por galpon_id
+    async getAll(galpon_id = null) {
 
-        const [rows] = await db.query(`
+        let query = `
             SELECT g.*, ga.nombre AS galpon
             FROM gallinas g
             LEFT JOIN galpones ga
                 ON g.galpon_id = ga.id
-        `);
+        `;
+
+        const params = [];
+
+        if (galpon_id) {
+            query += ' WHERE g.galpon_id = ?';
+            params.push(galpon_id);
+        }
+
+        query += ' ORDER BY g.id DESC';
+
+        const [rows] = await db.query(query, params);
 
         return rows;
     }

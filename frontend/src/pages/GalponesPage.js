@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import API from '../services/api';
 import GalponForm from '../components/GalponForm';
 import ConfirmModal from '../components/ConfirmModal';
@@ -130,11 +130,7 @@ function GalponDetalle({ galpon, onClose, onRefresh, onAlert }) {
     open: false, gallinaId: null, gallinaNombre: '',
   });
 
-  useEffect(() => {
-    fetchDetalle();
-  }, [galpon.id]);
-
-  const fetchDetalle = async () => {
+  const fetchDetalle = useCallback(async () => {
     setLoading(true);
     try {
       const [gallinasRes, statsRes] = await Promise.all([
@@ -148,7 +144,11 @@ function GalponDetalle({ galpon, onClose, onRefresh, onAlert }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [galpon.id]);
+
+  useEffect(() => {
+    fetchDetalle();
+  }, [fetchDetalle]);
 
   const handleEliminarGallina = (gallina) => {
     setConfirmModal({

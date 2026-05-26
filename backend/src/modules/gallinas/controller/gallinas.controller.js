@@ -2,13 +2,18 @@ const gallinasService =
     require('../service/gallinas.service');
 
 
-// GET ALL
+// GET ALL — soporta ?galpon_id=X
 exports.getAllGallinas = async (req, res) => {
 
     try {
 
+        const galpon_id =
+            req.query.galpon_id || null;
+
         const data =
-            await gallinasService.getAllGallinas();
+            await gallinasService.getAllGallinas(
+                galpon_id
+            );
 
         res.json(data);
 
@@ -52,7 +57,9 @@ exports.createGallina = async (req, res) => {
     try {
 
         const result =
-            await gallinasService.createGallina(req.body);
+            await gallinasService.createGallina(
+                req.body
+            );
 
         res.json({
             message: 'Gallina creada correctamente',

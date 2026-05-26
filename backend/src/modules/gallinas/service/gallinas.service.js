@@ -14,27 +14,21 @@ const galponesRepository =
     new GalponesRepository();
 
 
-// GET ALL
-exports.getAllGallinas = async () => {
-
-    return await gallinasRepository.getAll();
-
+// GET ALL (soporta filtro por galpon_id)
+exports.getAllGallinas = async (galpon_id = null) => {
+    return await gallinasRepository.getAll(galpon_id);
 };
 
 
 // GET BY ID
 exports.getGallinaById = async (id) => {
 
-    if (!id) {
-        throw new Error('ID requerido');
-    }
+    if (!id) throw new Error('ID requerido');
 
     const gallina =
         await gallinasRepository.getById(id);
 
-    if (!gallina) {
-        throw new Error('Gallina no encontrada');
-    }
+    if (!gallina) throw new Error('Gallina no encontrada');
 
     return new Gallina(gallina);
 };
@@ -43,22 +37,13 @@ exports.getGallinaById = async (id) => {
 // CREATE
 exports.createGallina = async (data) => {
 
-    let {
-        codigo,
-        raza,
-        edad,
-        galpon_id
-    } = data;
-
-    // =========================
-    // VALIDACIONES
-    // =========================
+    let { codigo, raza, edad, galpon_id } = data;
 
     if (!codigo || codigo.trim() === '') {
         throw new Error('Código obligatorio');
     }
 
-    if (!edad || edad < 0) {
+    if (edad === undefined || edad === '' || edad < 0) {
         throw new Error('Edad inválida');
     }
 
@@ -66,18 +51,9 @@ exports.createGallina = async (data) => {
         throw new Error('Galpón obligatorio');
     }
 
-    // =========================
-    // NORMALIZAR
-    // =========================
+    codigo = codigo.trim().toUpperCase();
 
-    codigo = codigo
-        .trim()
-        .toUpperCase();
-
-    // =========================
-    // VALIDAR CÓDIGO ÚNICO
-    // =========================
-
+    // Validar código único
     const existentes =
         await gallinasRepository.getAll();
 
@@ -91,33 +67,19 @@ exports.createGallina = async (data) => {
         );
     }
 
-    // =========================
-    // VALIDAR CAPACIDAD GALPÓN
-    // =========================
-
+    // Validar capacidad del galpón
     const galpon =
-        await galponesRepository.stats(
-            galpon_id
-        );
+        await galponesRepository.stats(galpon_id);
 
     if (!galpon) {
-        throw new Error(
-            'Galpón no encontrado'
-        );
+        throw new Error('Galpón no encontrado');
     }
 
-    if (
-        galpon.total_gallinas >=
-        galpon.capacidad
-    ) {
+    if (galpon.total_gallinas >= galpon.capacidad) {
         throw new Error(
             'El galpón ya alcanzó su capacidad máxima'
         );
     }
-
-    // =========================
-    // CREAR ENTIDAD
-    // =========================
 
     const gallina = new Gallina({
         codigo,
@@ -126,32 +88,33 @@ exports.createGallina = async (data) => {
         galpon_id
     });
 
-    return await gallinasRepository.create(
-        gallina
-    );
+    return await gallinasRepository.create(gallina);
 };
 
 
 // UPDATE
 exports.updateGallina = async (id, data) => {
 
-    if (!id) {
-        throw new Error('ID requerido');
-    }
+    if (!id) throw new Error('ID requerido');
 
-    return await gallinasRepository.update(
-        id,
-        data
-    );
+    const existe =
+        await gallinasRepository.getById(id);
+
+    if (!existe) throw new Error('Gallina no encontrada');
+
+    return await gallinasRepository.update(id, data);
 };
 
 
 // DELETE
 exports.deleteGallina = async (id) => {
 
-    if (!id) {
-        throw new Error('ID requerido');
-    }
+    if (!id) throw new Error('ID requerido');
+
+    const existe =
+        await gallinasRepository.getById(id);
+
+    if (!existe) throw new Error('Gallina no encontrada');
 
     return await gallinasRepository.delete(id);
 };

@@ -1,33 +1,72 @@
-import GallinaForm from '../components/GallinaForm';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function CrearGallinaPage() {
+/**
+ * GallinasPage — redirige a Galpones
+ *
+ * La gestión de gallinas ahora vive dentro
+ * de cada galpón. Esta página redirige
+ * automáticamente para mantener compatibilidad
+ * con cualquier enlace existente.
+ */
+function GallinasPage() {
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      navigate('/galpones');
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
   return (
     <div className="container">
 
-      <h1>➕ Crear Gallina</h1>
+      <div className="page-header">
+        <h1>Gallinas</h1>
+        <p>Redirigiendo a Galpones...</p>
+      </div>
 
-      <div className="grid">
-
-        {/* FORMULARIO */}
-        <div className="card">
-          <h3>Registro</h3>
-          <GallinaForm />
+      <div
+        className="card"
+        style={{
+          textAlign: 'center',
+          padding: '48px 32px',
+          maxWidth: '480px',
+          margin: '0 auto',
+        }}
+      >
+        <div style={{
+          fontSize: '48px',
+          marginBottom: '16px',
+          lineHeight: 1,
+        }}>
+          🏠
         </div>
 
-        {/* INFO / AYUDA */}
-        <div className="card">
-          <h3>Información</h3>
+        <h3 style={{ margin: '0 0 10px', fontSize: '18px' }}>
+          Las gallinas ahora viven en Galpones
+        </h3>
 
-          <p>📌 El código debe ser único</p>
-          <p>📌 La edad se registra en meses</p>
-          <p>📌 La raza se formatea automáticamente</p>
+        <p style={{
+          color: 'var(--text-soft)',
+          fontSize: '14px',
+          lineHeight: 1.65,
+          margin: '0 0 24px',
+        }}>
+          Para ver, registrar o gestionar gallinas,
+          entra a un galpón y encontrarás todas las
+          gallinas que pertenecen a él.
+        </p>
 
-          <hr />
-
-          <p style={{ color: '#6b7280' }}>
-            Usa esta sección para registrar nuevas gallinas en el sistema.
-          </p>
-        </div>
+        <button
+          className="btn-save"
+          onClick={() => navigate('/galpones')}
+        >
+          Ir a Galpones
+        </button>
 
       </div>
 
@@ -35,4 +74,4 @@ function CrearGallinaPage() {
   );
 }
 
-export default CrearGallinaPage;
+export default GallinasPage;

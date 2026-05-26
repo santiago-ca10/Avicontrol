@@ -22,7 +22,7 @@ function GallinasPage() {
       .catch(err => console.error(err));
   };
 
-  // 🔥 EDIT COMPLETO
+  //  EDIT COMPLETO
   const updateGallina = (g) => {
     const codigo = prompt('Código:', g.codigo);
     if (codigo === null) return;
