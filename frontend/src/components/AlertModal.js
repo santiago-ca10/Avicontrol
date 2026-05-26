@@ -1,115 +1,87 @@
-import { useState, useEffect } from 'react';
 import Modal from './Modal';
 
 /**
- * Modal de confirmación con texto escrito
+ * Modal de alerta — reemplaza alert()
  *
  * Props:
  * - isOpen: boolean
  * - onClose: función
- * - onConfirm: función que se ejecuta al confirmar
- * - title: string — título del modal
- * - message: string — descripción del peligro
- * - confirmWord: string — palabra que debe escribirse para confirmar
- * - confirmLabel: string — texto del botón de confirmación (default: 'Eliminar')
- * - danger: boolean — si true, botón confirmar es rojo (default: true)
+ * - title: string
+ * - message: string
+ * - type: 'success' | 'error' | 'warning' | 'info' (default: 'info')
  *
  * Ejemplo:
- * <ConfirmModal
- *   isOpen={modalOpen}
- *   onClose={() => setModalOpen(false)}
- *   onConfirm={handleDelete}
- *   title="Eliminar producción"
- *   message="Esta acción no se puede deshacer."
- *   confirmWord={nombreGalpon}
+ * <AlertModal
+ *   isOpen={alert.open}
+ *   onClose={() => setAlert({ open: false })}
+ *   title="Producción registrada"
+ *   message="El registro fue guardado correctamente."
+ *   type="success"
  * />
  */
-function ConfirmModal({
+function AlertModal({
   isOpen,
   onClose,
-  onConfirm,
-  title = 'Confirmar acción',
-  message = 'Esta acción no se puede deshacer.',
-  confirmWord,
-  confirmLabel = 'Eliminar',
-  danger = true,
+  title,
+  message,
+  type = 'info',
 }) {
 
-  const [inputValue, setInputValue] = useState('');
-  const isMatch = inputValue.trim().toLowerCase() === confirmWord?.trim().toLowerCase();
-
-  // Limpiar input cuando se abre/cierra
-  useEffect(() => {
-    if (!isOpen) setInputValue('');
-  }, [isOpen]);
-
-  const handleConfirm = () => {
-    if (!isMatch) return;
-    onConfirm();
-    onClose();
+  const config = {
+    success: {
+      icon: '✓',
+      color: '#16a34a',
+      bg: 'rgba(22,163,74,0.1)',
+      label: 'Entendido',
+    },
+    error: {
+      icon: '✕',
+      color: '#dc2626',
+      bg: 'rgba(220,38,38,0.1)',
+      label: 'Cerrar',
+    },
+    warning: {
+      icon: '!',
+      color: '#d97706',
+      bg: 'rgba(217,119,6,0.1)',
+      label: 'Entendido',
+    },
+    info: {
+      icon: 'i',
+      color: '#2563eb',
+      bg: 'rgba(37,99,235,0.1)',
+      label: 'Entendido',
+    },
   };
+
+  const { icon, color, bg, label } = config[type] || config.info;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
 
-      {/* MENSAJE */}
-      <p style={styles.message}>{message}</p>
+      {/* ICONO + MENSAJE */}
+      <div style={styles.content}>
 
-      {/* INSTRUCCIÓN */}
-      {confirmWord && (
-        <>
-          <p style={styles.instruction}>
-            Escribe{' '}
-            <strong style={styles.keyword}>"{confirmWord}"</strong>{' '}
-            para confirmar:
-          </p>
+        <div style={{ ...styles.iconBadge, background: bg, color }}>
+          <span style={styles.iconText}>{icon}</span>
+        </div>
 
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder={`Escribe: ${confirmWord}`}
-            autoFocus
-            style={{
-              ...styles.input,
-              borderColor: inputValue
-                ? isMatch
-                  ? '#16a34a'
-                  : '#ef4444'
-                : 'var(--border)',
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && isMatch) handleConfirm();
-            }}
-          />
-        </>
-      )}
+        <p style={styles.message}>{message}</p>
 
-      {/* BOTONES */}
+      </div>
+
+      {/* BOTÓN */}
       <div style={styles.actions}>
-
-        <button style={styles.cancelBtn} onClick={onClose}>
-          Cancelar
-        </button>
-
         <button
           style={{
-            ...styles.confirmBtn,
-            background: danger
-              ? isMatch
-                ? 'linear-gradient(135deg, #dc2626, #ef4444)'
-                : 'rgba(239,68,68,0.3)'
-              : isMatch
-                ? 'linear-gradient(135deg, var(--primary), var(--secondary))'
-                : 'rgba(22,163,74,0.3)',
-            cursor: isMatch ? 'pointer' : 'not-allowed',
+            ...styles.btn,
+            background: `linear-gradient(135deg, ${color}, ${color}cc)`,
           }}
-          onClick={handleConfirm}
-          disabled={confirmWord ? !isMatch : false}
+          onClick={onClose}
+          autoFocus
         >
-          {confirmLabel}
+          {label}
         </button>
-
       </div>
 
     </Modal>
@@ -117,62 +89,49 @@ function ConfirmModal({
 }
 
 const styles = {
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    gap: '14px',
+    padding: '8px 0',
+  },
+  iconBadge: {
+    width: '52px',
+    height: '52px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconText: {
+    fontSize: '22px',
+    fontWeight: 700,
+    lineHeight: 1,
+  },
   message: {
-    margin: '0 0 16px',
+    margin: 0,
     color: 'var(--text-soft)',
     fontSize: '14px',
-    lineHeight: 1.6,
-  },
-  instruction: {
-    margin: '0 0 10px',
-    fontSize: '14px',
-    color: 'var(--text)',
-  },
-  keyword: {
-    color: '#dc2626',
-    fontWeight: 600,
-  },
-  input: {
-    width: '100%',
-    padding: '11px 14px',
-    borderRadius: '12px',
-    border: '1.5px solid var(--border)',
-    background: 'rgba(255,255,255,0.6)',
-    color: 'var(--text)',
-    fontSize: '14px',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-    boxSizing: 'border-box',
-    marginBottom: '0',
-    fontFamily: 'inherit',
+    lineHeight: 1.65,
   },
   actions: {
     display: 'flex',
-    justifyContent: 'flex-end',
-    gap: '10px',
+    justifyContent: 'center',
     marginTop: '20px',
   },
-  cancelBtn: {
-    background: 'transparent',
-    border: '1px solid var(--border)',
-    color: 'var(--text-soft)',
-    padding: '10px 20px',
-    borderRadius: '12px',
-    fontWeight: 500,
-    fontSize: '14px',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-  },
-  confirmBtn: {
+  btn: {
     color: 'white',
-    padding: '10px 22px',
+    padding: '10px 32px',
     borderRadius: '12px',
     fontWeight: 600,
     fontSize: '14px',
     border: 'none',
-    transition: 'background 0.2s, transform 0.2s',
+    cursor: 'pointer',
     fontFamily: 'inherit',
+    transition: 'transform 0.2s',
   },
 };
 
-export default ConfirmModal;
+export default AlertModal;
