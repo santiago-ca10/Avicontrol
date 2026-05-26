@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 
 /**
  * Modal base reutilizable
+ * Usa ReactDOM.createPortal para montar el overlay
+ * directamente en document.body y evitar errores de DOM.
  *
  * Props:
  * - isOpen: boolean
@@ -39,7 +42,7 @@ function Modal({ isOpen, onClose, title, children, size = 'md' }) {
     lg: '620px',
   };
 
-  return (
+  const modal = (
     <div style={styles.overlay} onClick={onClose}>
       <div
         style={{
@@ -61,6 +64,10 @@ function Modal({ isOpen, onClose, title, children, size = 'md' }) {
       </div>
     </div>
   );
+
+  // Montar fuera del árbol de React para evitar
+  // conflictos de DOM con removeChild
+  return ReactDOM.createPortal(modal, document.body);
 }
 
 const styles = {

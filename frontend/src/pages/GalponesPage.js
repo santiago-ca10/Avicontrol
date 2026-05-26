@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import API from '../services/api';
 import GalponForm from '../components/GalponForm';
+import GallinaForm from '../components/GallinaForm';
 import ConfirmModal from '../components/ConfirmModal';
 import AlertModal from '../components/AlertModal';
 
@@ -124,7 +125,8 @@ const gc = {
 function GalponDetalle({ galpon, onClose, onRefresh, onAlert }) {
   const [gallinas, setGallinas] = useState([]);
   const [stats, setStats]       = useState(null);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading]     = useState(true);
+  const [mostrarForm, setMostrarForm] = useState(false);
 
   const [confirmModal, setConfirmModal] = useState({
     open: false, gallinaId: null, gallinaNombre: '',
@@ -225,6 +227,43 @@ function GalponDetalle({ galpon, onClose, onRefresh, onAlert }) {
           <span style={{ fontSize: '13px', fontWeight: 600, color: ocupColor }}>{pct}%</span>
         </div>
         <OcupacionBar pct={pct} />
+      </div>
+
+      {/* FORM REGISTRAR GALLINA */}
+      <div className="card" style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>
+            Registrar gallina
+          </h3>
+          <button
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              color: 'var(--text-soft)',
+              padding: '6px 14px',
+              borderRadius: '10px',
+              fontSize: '13px',
+              cursor: 'pointer',
+            }}
+            onClick={() => setMostrarForm(!mostrarForm)}
+          >
+            {mostrarForm ? 'Cancelar' : '+ Nueva gallina'}
+          </button>
+        </div>
+
+        {mostrarForm && (
+          <div style={{ marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+            <GallinaForm
+              galponFijo={galpon.id}
+              onAlert={onAlert}
+              onCreated={() => {
+                setMostrarForm(false);
+                fetchDetalle();
+                onRefresh?.();
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* TABLA GALLINAS */}
