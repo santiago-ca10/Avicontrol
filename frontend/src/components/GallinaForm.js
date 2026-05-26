@@ -1,273 +1,197 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import API from '../services/api';
 
-// FORMATEAR RAZA
-const formatRaza = (texto) => {
-
-  return texto
-    .toLowerCase()
-    .split(' ')
-    .map(p =>
-      p.charAt(0).toUpperCase() + p.slice(1)
-    )
-    .join(' ');
-};
-
-function GallinaForm({ onCreated }) {
-
-  const [galpones, setGalpones] = useState([]);
+/**
+ * GallinaForm — registro por lotes
+ *
+ * Props:
+ * - onCreated: callback al guardar
+ * - onAlert: ({ title, message, type }) => void
+ * - galponFijo: id del galpón (cuando se usa dentro de GalponDetalle)
+ * - disponible: espacios disponibles en el galpón (opcional, para mostrar)
+ */
+function GallinaForm({ onCreated, onAlert, galponFijo = null, disponible = null }) {
 
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
-    codigo: '',
-    raza: '',
-    edad: '',
-    galpon_id: ''
+    raza:          '',
+    edad:          '',
+    cantidad:      1,
+    fecha_ingreso: new Date().toISOString().split('T')[0],
   });
 
-  // =========================
-  // CARGAR GALPONES
-  // =========================
-  useEffect(() => {
-
-    fetchGalpones();
-
-  }, []);
-
-  const fetchGalpones = () => {
-
-    API.get('/galpones')
-      .then(res => setGalpones(res.data))
-      .catch(err => console.error(err));
-
-  };
-
-  // =========================
-  // CAMBIOS
-  // =========================
   const handleChange = (e) => {
-
-    let {
-      name,
-      value
-    } = e.target;
-
-    // EDAD NEGATIVA
-    if (name === 'edad' && value < 0) {
-      return;
-    }
-
-    // FORMATEAR RAZA
-    if (name === 'raza') {
-      value = formatRaza(value);
-    }
-
-    // FORMATEAR CÓDIGO
-    if (name === 'codigo') {
-      value = value.toUpperCase();
-    }
-
-    setForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // =========================
-  // GUARDAR
-  // =========================
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
-    if (
-      !form.codigo ||
-      !form.raza ||
-      form.edad === '' ||
-      !form.galpon_id
-    ) {
-      alert('Complete todos los campos');
+    if (!form.raza.trim()) {
+      onAlert?.({ title: 'Campo requerido', message: 'La raza es obligatoria.', type: 'warning' });
       return;
     }
 
+    if (!form.cantidad || form.cantidad < 1) {
+      onAlert?.({ title: 'Cantidad inválida', message: 'La cantidad debe ser al menos 1.', type: 'warning' });
+      return;
+    }
+
+    if (disponible !== null && Number(form.cantidad) > disponible) {
+      onAlert?.({
+        title: 'Sin espacio',
+        message: `El galpón solo tiene ${disponible} lugar(es) disponible(s).`,
+        type: 'error',
+      });
+      return;
+    }
+
+    setLoading(true);
+
     try {
-
-      setLoading(true);
-
-      await API.post('/gallinas', form);
-
-      alert('Gallina registrada correctamente');
-
-      setForm({
-        codigo: '',
-        raza: '',
-        edad: '',
-        galpon_id: ''
+      const res = await API.post('/gallinas', {
+        ...form,
+        galpon_id: galponFijo,
       });
 
-      fetchGalpones();
+      onAlert?.({
+        title: 'Lote registrado',
+        message: `Se registraron ${res.data.insertadas} gallinas correctamente.`,
+        type: 'success',
+      });
 
-      if (onCreated) {
-        onCreated();
-      }
+      setForm({
+        raza:          '',
+        edad:          '',
+        cantidad:      1,
+        fecha_ingreso: new Date().toISOString().split('T')[0],
+      });
+
+      onCreated?.();
 
     } catch (error) {
-
-      alert(
-        error.response?.data?.message ||
-        'Error al crear gallina'
-      );
-
+      onAlert?.({
+        title: 'Error',
+        message: error.response?.data?.message || 'No se pudo registrar el lote.',
+        type: 'error',
+      });
     } finally {
-
       setLoading(false);
-
     }
   };
 
-  // =========================
-  // GALPÓN SELECCIONADO
-  // =========================
-  const galponSeleccionado = galpones.find(
-    g => g.id === Number(form.galpon_id)
-  );
-
   return (
-
     <form onSubmit={handleSubmit}>
 
-      <h2>
-        Registro de Gallinas
-      </h2>
-
-      {/* CÓDIGO */}
-      <input
-        type="text"
-        name="codigo"
-        placeholder="Código único"
-        value={form.codigo}
-        onChange={handleChange}
-        required
-      />
-
-      {/* RAZA */}
-      <input
-        type="text"
-        name="raza"
-        placeholder="Raza"
-        value={form.raza}
-        onChange={handleChange}
-        required
-      />
-
-      {/* EDAD */}
-      <input
-        type="number"
-        name="edad"
-        placeholder="Edad en meses"
-        value={form.edad}
-        onChange={handleChange}
-        min="0"
-        required
-      />
-
-      {/* GALPÓN */}
-      <select
-        name="galpon_id"
-        value={form.galpon_id}
-        onChange={handleChange}
-        required
-      >
-
-        <option value="">
-          Seleccione un galpón
-        </option>
-
-        {galpones.map(g => {
-
-          const total = Number(g.total_gallinas || 0);
-          const capacidad = Number(g.capacidad || 0);
-
-          const lleno = total >= capacidad;
-
-          return (
-
-            <option
-              key={g.id}
-              value={g.id}
-              disabled={lleno}
-            >
-              {g.nombre}
-              {' — '}
-              {total}/{capacidad}
-              {lleno ? ' (Lleno)' : ''}
-            </option>
-
-          );
-        })}
-
-      </select>
-
-      {/* INFO GALPÓN */}
-      {galponSeleccionado && (
-
-        <div
-          className="card"
-          style={{
-            marginTop: 16,
-            padding: 14
-          }}
-        >
-
-          <h3 style={{ marginBottom: 10 }}>
-            Información del Galpón
-          </h3>
-
-          <p>
-            <strong>Nombre:</strong>
-            {' '}
-            {galponSeleccionado.nombre}
-          </p>
-
-          <p>
-            <strong>Capacidad:</strong>
-            {' '}
-            {galponSeleccionado.capacidad}
-          </p>
-
-          <p>
-            <strong>Gallinas registradas:</strong>
-            {' '}
-            {galponSeleccionado.total_gallinas || 0}
-          </p>
-
-          <p>
-            <strong>Ocupación:</strong>
-            {' '}
-            {galponSeleccionado.ocupacion || 0}%
-          </p>
-
+      {disponible !== null && (
+        <div style={s.disponibleBadge}>
+          <span style={s.disponibleText}>
+            Espacios disponibles: <strong>{disponible}</strong>
+          </span>
         </div>
-
       )}
 
-      {/* BOTÓN */}
+      <div style={s.grid}>
+
+        {/* RAZA */}
+        <div style={s.field}>
+          <label style={s.label}>Raza</label>
+          <input
+            type="text"
+            name="raza"
+            placeholder="Ej: ISA Brown"
+            value={form.raza}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* CANTIDAD */}
+        <div style={s.field}>
+          <label style={s.label}>Cantidad</label>
+          <input
+            type="number"
+            name="cantidad"
+            placeholder="Ej: 20"
+            value={form.cantidad}
+            onChange={handleChange}
+            min="1"
+            max={disponible ?? undefined}
+            required
+          />
+        </div>
+
+        {/* EDAD */}
+        <div style={s.field}>
+          <label style={s.label}>Edad (meses)</label>
+          <input
+            type="number"
+            name="edad"
+            placeholder="0"
+            value={form.edad}
+            onChange={handleChange}
+            min="0"
+          />
+        </div>
+
+        {/* FECHA INGRESO */}
+        <div style={s.field}>
+          <label style={s.label}>Fecha de ingreso</label>
+          <input
+            type="date"
+            name="fecha_ingreso"
+            value={form.fecha_ingreso}
+            onChange={handleChange}
+          />
+        </div>
+
+      </div>
+
       <button
         type="submit"
         className="btn-save"
         disabled={loading}
-        style={{ marginTop: 18 }}
+        style={{ marginTop: '16px' }}
       >
-        {
-          loading
-            ? 'Guardando...'
-            : 'Guardar Gallina'
-        }
+        {loading
+          ? 'Registrando...'
+          : `Registrar ${form.cantidad > 1 ? `${form.cantidad} gallinas` : 'gallina'}`}
       </button>
 
     </form>
   );
 }
+
+const s = {
+  disponibleBadge: {
+    background: 'rgba(22,163,74,0.08)',
+    border: '1px solid rgba(22,163,74,0.2)',
+    borderRadius: '10px',
+    padding: '8px 14px',
+    marginBottom: '14px',
+    display: 'inline-block',
+  },
+  disponibleText: {
+    fontSize: '13px',
+    color: 'var(--text-soft)',
+  },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    gap: '12px',
+  },
+  field: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+  },
+  label: {
+    fontSize: '13px',
+    fontWeight: 500,
+    color: 'var(--text-soft)',
+  },
+};
 
 export default GallinaForm;

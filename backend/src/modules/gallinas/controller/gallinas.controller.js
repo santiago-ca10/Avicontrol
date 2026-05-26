@@ -2,26 +2,21 @@ const gallinasService =
     require('../service/gallinas.service');
 
 
-// GET ALL — soporta ?galpon_id=X
+// GET ALL
 exports.getAllGallinas = async (req, res) => {
 
     try {
 
-        const galpon_id =
-            req.query.galpon_id || null;
+        const galpon_id = req.query.galpon_id || null;
 
         const data =
-            await gallinasService.getAllGallinas(
-                galpon_id
-            );
+            await gallinasService.getAllGallinas(galpon_id);
 
         res.json(data);
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+        res.status(500).json({ message: error.message });
 
     }
 
@@ -42,35 +37,29 @@ exports.getGallinaById = async (req, res) => {
 
     } catch (error) {
 
-        res.status(404).json({
-            message: error.message
-        });
+        res.status(404).json({ message: error.message });
 
     }
 
 };
 
 
-// CREATE
-exports.createGallina = async (req, res) => {
+// CREATE LOTE
+exports.createLote = async (req, res) => {
 
     try {
 
         const result =
-            await gallinasService.createGallina(
-                req.body
-            );
+            await gallinasService.createLote(req.body);
 
         res.json({
-            message: 'Gallina creada correctamente',
-            id: result.insertId
+            message: `Lote registrado correctamente`,
+            insertadas: result.affectedRows,
         });
 
     } catch (error) {
 
-        res.status(400).json({
-            message: error.message
-        });
+        res.status(400).json({ message: error.message });
 
     }
 
@@ -84,20 +73,13 @@ exports.updateGallina = async (req, res) => {
 
         const { id } = req.params;
 
-        await gallinasService.updateGallina(
-            id,
-            req.body
-        );
+        await gallinasService.updateGallina(id, req.body);
 
-        res.json({
-            message: 'Gallina actualizada correctamente'
-        });
+        res.json({ message: 'Gallina actualizada correctamente' });
 
     } catch (error) {
 
-        res.status(400).json({
-            message: error.message
-        });
+        res.status(400).json({ message: error.message });
 
     }
 
@@ -113,15 +95,11 @@ exports.deleteGallina = async (req, res) => {
 
         await gallinasService.deleteGallina(id);
 
-        res.json({
-            message: 'Gallina eliminada correctamente'
-        });
+        res.json({ message: 'Gallina eliminada correctamente' });
 
     } catch (error) {
 
-        res.status(400).json({
-            message: error.message
-        });
+        res.status(400).json({ message: error.message });
 
     }
 

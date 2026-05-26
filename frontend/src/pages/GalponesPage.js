@@ -255,6 +255,7 @@ function GalponDetalle({ galpon, onClose, onRefresh, onAlert }) {
           <div style={{ marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
             <GallinaForm
               galponFijo={galpon.id}
+              disponible={stats ? stats.capacidad - stats.total_gallinas : null}
               onAlert={onAlert}
               onCreated={() => {
                 setMostrarForm(false);
@@ -283,7 +284,6 @@ function GalponDetalle({ galpon, onClose, onRefresh, onAlert }) {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Código</th>
                   <th>Raza</th>
                   <th>Fecha ingreso</th>
                   <th>Estado</th>
@@ -293,8 +293,7 @@ function GalponDetalle({ galpon, onClose, onRefresh, onAlert }) {
               <tbody>
                 {gallinas.map((g) => (
                   <tr key={g.id}>
-                    <td style={{ fontWeight: 500 }}>{g.codigo}</td>
-                    <td>{g.raza || '—'}</td>
+                    <td style={{ fontWeight: 500 }}>{g.raza || '—'}</td>
                     <td>
                       {g.fecha_ingreso
                         ? new Date(g.fecha_ingreso).toLocaleDateString()

@@ -4,17 +4,11 @@ const GallinasRepository =
 const GalponesRepository =
     require('../../galpones/repository/galpones.repository');
 
-const Gallina =
-    require('../domain/gallinas.model');
-
-const gallinasRepository =
-    new GallinasRepository();
-
-const galponesRepository =
-    new GalponesRepository();
+const gallinasRepository = new GallinasRepository();
+const galponesRepository = new GalponesRepository();
 
 
-// GET ALL (soporta filtro por galpon_id)
+// GET ALL
 exports.getAllGallinas = async (galpon_id = null) => {
     return await gallinasRepository.getAll(galpon_id);
 };
@@ -30,44 +24,39 @@ exports.getGallinaById = async (id) => {
 
     if (!gallina) throw new Error('Gallina no encontrada');
 
-    return new Gallina(gallina);
+    return gallina;
 };
 
 
-// CREATE
-exports.createGallina = async (data) => {
+// CREATE LOTE
+exports.createLote = async (data) => {
 
-    let { codigo, raza, edad, galpon_id } = data;
+    let {
+        raza,
+        edad,
+        cantidad,
+        galpon_id,
+        fecha_ingreso,
+    } = data;
 
-    if (!codigo || codigo.trim() === '') {
-        throw new Error('Código obligatorio');
+    if (!raza || raza.trim() === '') {
+        throw new Error('Raza obligatoria');
     }
 
-    if (edad === undefined || edad === '' || edad < 0) {
-        throw new Error('Edad inválida');
+    if (!cantidad || cantidad < 1) {
+        throw new Error('La cantidad debe ser mayor a 0');
     }
 
     if (!galpon_id) {
         throw new Error('Galpón obligatorio');
     }
 
-    codigo = codigo.trim().toUpperCase();
+    cantidad = parseInt(cantidad);
+    raza = raza.trim();
+    fecha_ingreso = fecha_ingreso ||
+        new Date().toISOString().split('T')[0];
 
-    // Validar código único
-    const existentes =
-        await gallinasRepository.getAll();
-
-    const existe = existentes.find(
-        g => g.codigo === codigo
-    );
-
-    if (existe) {
-        throw new Error(
-            'Ya existe una gallina con ese código'
-        );
-    }
-
-    // Validar capacidad del galpón
+    // Validar capacidad disponible
     const galpon =
         await galponesRepository.stats(galpon_id);
 
@@ -75,20 +64,25 @@ exports.createGallina = async (data) => {
         throw new Error('Galpón no encontrado');
     }
 
-    if (galpon.total_gallinas >= galpon.capacidad) {
+    const disponible =
+        galpon.capacidad - galpon.total_gallinas;
+
+    if (cantidad > disponible) {
         throw new Error(
-            'El galpón ya alcanzó su capacidad máxima'
+            `Espacio insuficiente. El galpón tiene ${disponible} lugar(es) disponible(s)`
         );
     }
 
-    const gallina = new Gallina({
-        codigo,
+    // Construir filas del lote
+    const filas = Array.from({ length: cantidad }, () => ({
         raza,
-        edad,
-        galpon_id
-    });
+        edad: edad || 0,
+        estado: 'activa',
+        galpon_id,
+        fecha_ingreso,
+    }));
 
-    return await gallinasRepository.create(gallina);
+    return await gallinasRepository.createLote(filas);
 };
 
 

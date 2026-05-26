@@ -5,7 +5,6 @@ const GallinasPort =
 
 class GallinasRepository extends GallinasPort {
 
-    // Soporta filtro opcional por galpon_id
     async getAll(galpon_id = null) {
 
         let query = `
@@ -39,25 +38,27 @@ class GallinasRepository extends GallinasPort {
         return rows[0];
     }
 
-    async create(data) {
+    // Insertar un lote de gallinas
+    async createLote(filas) {
 
-        const {
-            codigo,
-            raza,
-            edad,
-            galpon_id
-        } = data;
+        // filas: array de [raza, edad, estado, galpon_id, fecha_ingreso]
+        const placeholders = filas
+            .map(() => '(?, ?, ?, ?, ?)')
+            .join(', ');
+
+        const valores = filas.flatMap(f => [
+            f.raza,
+            f.edad,
+            f.estado,
+            f.galpon_id,
+            f.fecha_ingreso,
+        ]);
 
         const [result] = await db.query(`
             INSERT INTO gallinas
-            (codigo, raza, edad, galpon_id)
-            VALUES (?, ?, ?, ?)
-        `, [
-            codigo,
-            raza,
-            edad,
-            galpon_id
-        ]);
+            (raza, edad, estado, galpon_id, fecha_ingreso)
+            VALUES ${placeholders}
+        `, valores);
 
         return result;
     }
@@ -65,29 +66,29 @@ class GallinasRepository extends GallinasPort {
     async update(id, data) {
 
         const {
-            codigo,
             raza,
             edad,
             estado,
-            galpon_id
+            galpon_id,
+            fecha_ingreso,
         } = data;
 
         const [result] = await db.query(`
             UPDATE gallinas
             SET
-                codigo = ?,
                 raza = ?,
                 edad = ?,
                 estado = ?,
-                galpon_id = ?
+                galpon_id = ?,
+                fecha_ingreso = ?
             WHERE id = ?
         `, [
-            codigo,
             raza,
             edad,
             estado,
             galpon_id,
-            id
+            fecha_ingreso,
+            id,
         ]);
 
         return result;
