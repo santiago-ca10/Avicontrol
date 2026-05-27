@@ -49,6 +49,7 @@ body {
 .app {
   display: flex;
   min-height: 100vh;
+  align-items: flex-start;
 }
 
 /* =========================
@@ -230,7 +231,7 @@ button:hover {
 input,
 select,
 textarea {
-  width: 100%;
+  box-sizing: border-box;
   padding: 12px;
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -477,4 +478,16 @@ textarea:focus {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* =========================
+   SIDEBAR FIJO
+========================= */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }

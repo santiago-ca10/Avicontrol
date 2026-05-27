@@ -7,10 +7,17 @@ class DashboardRepository extends DashboardPort {
 
     async getStats() {
 
-        // TOTAL GALLINAS
+        // TOTAL GALLINAS (todas)
         const [gallinas] = await db.query(`
             SELECT COUNT(*) AS total
             FROM gallinas
+        `);
+
+        // GALLINAS ACTIVAS
+        const [gallinasActivas] = await db.query(`
+            SELECT COUNT(*) AS total
+            FROM gallinas
+            WHERE estado IN ('activa', 'enferma')
         `);
 
         // TOTAL GALPONES
@@ -22,13 +29,6 @@ class DashboardRepository extends DashboardPort {
         // HUEVOS HOY
         const [huevosHoy] = await db.query(`
             SELECT COALESCE(SUM(huevos), 0) AS total
-            FROM produccion_diaria
-            WHERE DATE(fecha) = CURDATE()
-        `);
-
-        // MORTALIDAD HOY
-        const [mortalidadHoy] = await db.query(`
-            SELECT COALESCE(SUM(mortalidad), 0) AS total
             FROM produccion_diaria
             WHERE DATE(fecha) = CURDATE()
         `);
@@ -46,26 +46,21 @@ class DashboardRepository extends DashboardPort {
         `);
 
         return {
-            totalGallinas:   gallinas[0].total     || 0,
-            totalGalpones:   galpones[0].total     || 0,
-            produccionHoy:   huevosHoy[0].total    || 0,
-            mortalidadHoy:   mortalidadHoy[0].total || 0,
+            totalGallinas:    gallinas[0].total        || 0,
+            gallinasActivas:  gallinasActivas[0].total || 0,
+            totalGalpones:    galpones[0].total        || 0,
+            produccionHoy:    huevosHoy[0].total       || 0,
             productividadHoy: Number(productividadHoy[0].promedio || 0).toFixed(1),
         };
 
     }
 
-    // =========================
-    // PRODUCCIÓN ÚLTIMOS N DÍAS
-    // Para gráfica de huevos
-    // =========================
     async getProduccionReciente(dias = 30) {
 
         const [rows] = await db.query(`
             SELECT
                 DATE(fecha) AS fecha,
-                SUM(huevos) AS total_huevos,
-                SUM(mortalidad) AS total_mortalidad
+                SUM(huevos) AS total_huevos
             FROM produccion_diaria
             WHERE fecha >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
             GROUP BY DATE(fecha)
@@ -73,13 +68,8 @@ class DashboardRepository extends DashboardPort {
         `, [dias]);
 
         return rows;
-
     }
 
-    // =========================
-    // OCUPACIÓN POR GALPÓN
-    // Para card de galpones
-    // =========================
     async getOcupacionGalpones() {
 
         const [rows] = await db.query(`
@@ -87,27 +77,20 @@ class DashboardRepository extends DashboardPort {
                 g.id,
                 g.nombre,
                 g.capacidad,
-                COUNT(ga.id) AS gallinas_actuales,
+                COUNT(CASE WHEN ga.estado IN ('activa','enferma') THEN ga.id END) AS gallinas_actuales,
                 ROUND(
-                    (COUNT(ga.id) / g.capacidad) * 100,
+                    (COUNT(CASE WHEN ga.estado IN ('activa','enferma') THEN ga.id END) / g.capacidad) * 100,
                     1
                 ) AS ocupacion
             FROM galpones g
-            LEFT JOIN gallinas ga
-                ON ga.galpon_id = g.id
+            LEFT JOIN gallinas ga ON ga.galpon_id = g.id
             GROUP BY g.id, g.nombre, g.capacidad
             ORDER BY g.nombre ASC
         `);
 
         return rows;
-
     }
 
-    // =========================
-    // HISTORIAL GALLINAS
-    // Últimos N días (snapshot diario
-    // basado en producción registrada)
-    // =========================
     async getHistorialGallinas(dias = 30) {
 
         const [rows] = await db.query(`
@@ -121,7 +104,6 @@ class DashboardRepository extends DashboardPort {
         `, [dias]);
 
         return rows;
-
     }
 
 }

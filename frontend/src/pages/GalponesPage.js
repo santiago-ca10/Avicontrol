@@ -127,6 +127,8 @@ function GalponDetalle({ galpon, onClose, onRefresh, onAlert }) {
   const [stats, setStats]       = useState(null);
   const [loading, setLoading]     = useState(true);
   const [mostrarForm, setMostrarForm] = useState(false);
+  const [gallinaEditando, setGallinaEditando] = useState(null);
+  const [confirmEditModal, setConfirmEditModal] = useState(false);
 
   const [confirmModal, setConfirmModal] = useState({
     open: false, gallinaId: null, gallinaNombre: '',
@@ -176,6 +178,39 @@ function GalponDetalle({ galpon, onClose, onRefresh, onAlert }) {
         message: err.response?.data?.message || 'No se pudo eliminar.',
         type: 'error',
       });
+    }
+  };
+
+  const handleEditarGallina = (g) => {
+    setGallinaEditando({
+      id: g.id,
+      raza: g.raza || '',
+      edad: g.edad || 0,
+      estado: g.estado || 'activa',
+      fecha_ingreso: g.fecha_ingreso ? g.fecha_ingreso.split('T')[0] : new Date().toISOString().split('T')[0],
+      galpon_id: g.galpon_id,
+    });
+  };
+
+  const handleGuardarEdicion = () => {
+    const estadoFinal = gallinaEditando.estado;
+    if (estadoFinal === 'muerta' || estadoFinal === 'vendida') {
+      setConfirmEditModal(true);
+    } else {
+      guardarEdicionDirecta();
+    }
+  };
+
+  const guardarEdicionDirecta = async () => {
+    try {
+      await API.put(`/gallinas/${gallinaEditando.id}`, gallinaEditando);
+      onAlert?.({ title: 'Actualizada', message: 'Gallina actualizada correctamente.', type: 'success' });
+      setGallinaEditando(null);
+      setConfirmEditModal(false);
+      fetchDetalle();
+      onRefresh?.();
+    } catch (err) {
+      onAlert?.({ title: 'Error', message: err.response?.data?.message || 'No se pudo actualizar.', type: 'error' });
     }
   };
 
@@ -287,50 +322,135 @@ function GalponDetalle({ galpon, onClose, onRefresh, onAlert }) {
                   <th>Raza</th>
                   <th>Fecha ingreso</th>
                   <th>Estado</th>
+                  <th>Edad</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {gallinas.map((g) => (
-                  <tr key={g.id}>
-                    <td style={{ fontWeight: 500 }}>{g.raza || '—'}</td>
-                    <td>
-                      {g.fecha_ingreso
-                        ? new Date(g.fecha_ingreso).toLocaleDateString()
-                        : '—'}
-                    </td>
-                    <td>
-                      <span style={{
-                        fontSize: '12px',
-                        padding: '3px 10px',
-                        borderRadius: '20px',
-                        background: g.estado === 'activa'
-                          ? 'rgba(22,163,74,0.12)'
-                          : 'rgba(100,116,139,0.12)',
-                        color: g.estado === 'activa' ? '#16a34a' : '#64748b',
-                        fontWeight: 600,
-                      }}>
-                        {g.estado || 'activa'}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
-                          className="btn-delete"
-                          style={{ fontSize: '13px', padding: '6px 12px' }}
-                          onClick={() => handleEliminarGallina(g)}
-                        >
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {gallinas.filter(g => g.estado === 'activa' || g.estado === 'enferma').map((g) => {
+                  const editando = gallinaEditando?.id === g.id;
+                  return (
+                    <tr key={g.id}>
+                      <td>
+                        {editando ? (
+                          <input
+                            type="text"
+                            value={gallinaEditando.raza}
+                            onChange={e => setGallinaEditando(prev => ({ ...prev, raza: e.target.value }))}
+                            style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
+                          />
+                        ) : (
+                          <span style={{ fontWeight: 500 }}>{g.raza || '—'}</span>
+                        )}
+                      </td>
+                      <td>
+                        {editando ? (
+                          <input
+                            type="date"
+                            value={gallinaEditando.fecha_ingreso}
+                            onChange={e => setGallinaEditando(prev => ({ ...prev, fecha_ingreso: e.target.value }))}
+                            style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '13px', boxSizing: 'border-box' }}
+                          />
+                        ) : (
+                          g.fecha_ingreso ? new Date(g.fecha_ingreso).toLocaleDateString() : '—'
+                        )}
+                      </td>
+                      <td>
+                        {editando ? (
+                          <select
+                            value={gallinaEditando.estado}
+                            onChange={e => setGallinaEditando(prev => ({ ...prev, estado: e.target.value }))}
+                            style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '13px', boxSizing: 'border-box' }}
+                          >
+                            <option value="activa">Activa</option>
+                            <option value="enferma">Enferma</option>
+                            <option value="vendida">Vendida</option>
+                            <option value="muerta">Muerta</option>
+                          </select>
+                        ) : (
+                          <span style={{
+                            fontSize: '12px',
+                            padding: '3px 10px',
+                            borderRadius: '20px',
+                            background: g.estado === 'activa' ? 'rgba(22,163,74,0.12)' : 'rgba(100,116,139,0.12)',
+                            color: g.estado === 'activa' ? '#16a34a' : '#64748b',
+                            fontWeight: 600,
+                          }}>
+                            {g.estado || 'activa'}
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        {editando ? (
+                          <input
+                            type="number"
+                            value={gallinaEditando.edad}
+                            onChange={e => setGallinaEditando(prev => ({ ...prev, edad: e.target.value }))}
+                            min="0"
+                            style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '13px', width: '70px', boxSizing: 'border-box' }}
+                          />
+                        ) : (
+                          <span>{g.edad ?? '—'} m</span>
+                        )}
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          {editando ? (
+                            <>
+                              <button
+                                className="btn-save"
+                                style={{ fontSize: '13px', padding: '6px 12px' }}
+                                onClick={handleGuardarEdicion}
+                              >
+                                Guardar
+                              </button>
+                              <button
+                                style={{ fontSize: '13px', padding: '6px 12px' }}
+                                onClick={() => setGallinaEditando(null)}
+                              >
+                                Cancelar
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                className="btn-edit"
+                                style={{ fontSize: '13px', padding: '6px 12px' }}
+                                onClick={() => handleEditarGallina(g)}
+                              >
+                                Editar
+                              </button>
+                              <button
+                                className="btn-delete"
+                                style={{ fontSize: '13px', padding: '6px 12px' }}
+                                onClick={() => handleEliminarGallina(g)}
+                              >
+                                Eliminar
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
+
+      {/* CONFIRM ESTADO PELIGROSO */}
+      <ConfirmModal
+        isOpen={confirmEditModal}
+        onClose={() => setConfirmEditModal(false)}
+        onConfirm={guardarEdicionDirecta}
+        title={`Marcar como ${gallinaEditando?.estado}`}
+        message={`Esta gallina quedará marcada como "${gallinaEditando?.estado}" y saldrá del conteo del galpón.`}
+        confirmWord={gallinaEditando?.estado}
+        confirmLabel="Confirmar"
+        danger={gallinaEditando?.estado === 'muerta'}
+      />
 
       {/* CONFIRM ELIMINAR GALLINA */}
       <ConfirmModal

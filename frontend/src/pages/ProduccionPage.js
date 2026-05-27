@@ -29,7 +29,6 @@ function ProduccionPage() {
     fecha: new Date().toISOString().split('T')[0],
     huevos: '',
     aves_activas: '',
-    mortalidad: 0,
     alimento_kg: '',
     observaciones: '',
   });
@@ -282,31 +281,18 @@ function ProduccionPage() {
               </div>
             </div>
 
-            {/* FILA: MORTALIDAD + ALIMENTO */}
-            <div style={formStyles.row}>
-              <div style={formStyles.field}>
-                <label style={formStyles.label}>Mortalidad</label>
-                <input
-                  type="number"
-                  name="mortalidad"
-                  placeholder="0"
-                  value={form.mortalidad}
-                  onChange={handleChange}
-                  min="0"
-                />
-              </div>
-              <div style={formStyles.field}>
-                <label style={formStyles.label}>Alimento (kg)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  name="alimento_kg"
-                  placeholder="0.00"
-                  value={form.alimento_kg}
-                  onChange={handleChange}
-                  min="0"
-                />
-              </div>
+            {/* ALIMENTO */}
+            <div style={formStyles.field}>
+              <label style={formStyles.label}>Alimento (kg)</label>
+              <input
+                type="number"
+                step="0.01"
+                name="alimento_kg"
+                placeholder="0.00"
+                value={form.alimento_kg}
+                onChange={handleChange}
+                min="0"
+              />
             </div>
 
             {/* OBSERVACIONES */}
@@ -354,7 +340,6 @@ function ProduccionPage() {
               <th>Huevos</th>
               <th>Aves</th>
               <th>Productividad</th>
-              <th>Mortalidad</th>
               <th>Alimento</th>
               <th>Acciones</th>
             </tr>

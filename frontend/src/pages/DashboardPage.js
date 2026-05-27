@@ -168,6 +168,13 @@ function DashboardPage() {
                 />
 
                 <DashCard
+                    label="Gallinas activas"
+                    value={stats?.gallinasActivas ?? 0}
+                    sub={`De ${stats?.totalGallinas ?? 0} registradas`}
+                    color="#22c55e"
+                />
+
+                <DashCard
                     label="Galpones activos"
                     value={stats?.totalGalpones ?? 0}
                     color="#2563eb"
@@ -180,12 +187,6 @@ function DashboardPage() {
                     color="#d97706"
                     clickable
                     onClick={() => setModalGrafica('huevos')}
-                />
-
-                <DashCard
-                    label="Mortalidad hoy"
-                    value={stats?.mortalidadHoy ?? 0}
-                    color={stats?.mortalidadHoy > 0 ? '#dc2626' : '#64748b'}
                 />
 
             </div>
