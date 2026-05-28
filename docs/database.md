@@ -1,109 +1,96 @@
-# Base de Datos - Avicontrol
+# 🗄 Base de Datos — Avicontrol
 
-Documentación de la estructura de base de datos del sistema Avicontrol.
+**Motor:** MySQL 8  
+**Base de datos:** `avicontrol_db`
 
----
+## Diagrama de relaciones
 
-# Motor
+```
+galpones (1) ──────── (*) gallinas
+    │                      ON DELETE SET NULL
+    │
+    └──────────────── (*) produccion_diaria
+                           ON DELETE CASCADE
+```
 
-- MySQL
-- mysql2
-- mysql2/promise
+## Tablas
 
----
+### galpones
 
-# Base de datos
+| Campo | Tipo | Restricción | Descripción |
+|-------|------|-------------|-------------|
+| id | INT | PK, AUTO_INCREMENT | Identificador único |
+| nombre | VARCHAR(100) | NOT NULL | Nombre del galpón |
+| capacidad | INT | NOT NULL | Capacidad máxima de aves |
+| estado | ENUM('activo','inactivo') | DEFAULT 'activo' | Estado del galpón |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Fecha de creación |
 
-## Tabla: galpones
+### gallinas
+
+| Campo | Tipo | Restricción | Descripción |
+|-------|------|-------------|-------------|
+| id | INT | PK, AUTO_INCREMENT | Identificador único |
+| raza | VARCHAR(100) | NULL | Raza de la gallina |
+| edad | INT | NULL | Edad en meses |
+| estado | ENUM('activa','enferma','vendida','muerta') | DEFAULT 'activa' | Estado actual |
+| galpon_id | INT | FK → galpones(id) SET NULL | Galpón al que pertenece |
+| fecha_ingreso | DATE | DEFAULT CURDATE() | Fecha de ingreso |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Fecha de registro |
+
+> **Nota:** Las gallinas con estado `muerta` o `vendida` no cuentan en la ocupación del galpón.
+
+### produccion_diaria
+
+| Campo | Tipo | Restricción | Descripción |
+|-------|------|-------------|-------------|
+| id | INT | PK, AUTO_INCREMENT | Identificador único |
+| galpon_id | INT | FK → galpones(id) CASCADE | Galpón del registro |
+| fecha | DATE | NOT NULL | Fecha de producción |
+| huevos | INT | NOT NULL | Huevos producidos |
+| aves_activas | INT | NOT NULL | Aves activas ese día |
+| alimento_kg | DECIMAL(5,2) | NULL | Alimento consumido en kg |
+| observaciones | TEXT | NULL | Notas adicionales |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Fecha de creación |
+
+> **Restricción:** No puede existir más de un registro por galpón por fecha (validado en backend).
+
+## Script de creación
+
 ```sql
 CREATE DATABASE avicontrol_db;
- Tabla: galpones
+USE avicontrol_db;
+
 CREATE TABLE galpones (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    capacidad INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  id INT NOT NULL AUTO_INCREMENT,
+  nombre VARCHAR(100) NOT NULL,
+  capacidad INT NOT NULL,
+  estado ENUM('activo','inactivo') DEFAULT 'activo',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
 );
-```
-## Tabla: gallinas
-```sql
+
 CREATE TABLE gallinas (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    codigo VARCHAR(50) UNIQUE NOT NULL,
-    raza VARCHAR(100),
-    edad INT,
-    estado ENUM(
-        'activa',
-        'enferma',
-        'vendida'
-    ) DEFAULT 'activa',
-
-    galpon_id INT,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (galpon_id)
-    REFERENCES galpones(id)
-    ON DELETE SET NULL
+  id INT NOT NULL AUTO_INCREMENT,
+  raza VARCHAR(100) DEFAULT NULL,
+  edad INT DEFAULT NULL,
+  estado ENUM('activa','enferma','vendida','muerta') DEFAULT 'activa',
+  galpon_id INT DEFAULT NULL,
+  fecha_ingreso DATE DEFAULT (CURDATE()),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (galpon_id) REFERENCES galpones(id) ON DELETE SET NULL
 );
-```
 
-## Tabla: produccion_diaria
-```sql
 CREATE TABLE produccion_diaria (
-
-    id INT PRIMARY KEY AUTO_INCREMENT,
-
-    galpon_id INT NOT NULL,
-
-    fecha DATE NOT NULL,
-
-    huevos INT NOT NULL,
-
-    aves_activas INT NOT NULL,
-
-    mortalidad INT DEFAULT 0,
-
-    alimento_kg DECIMAL(10,2),
-
-    observaciones TEXT,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (galpon_id)
-    REFERENCES galpones(id)
-    ON DELETE CASCADE
+  id INT NOT NULL AUTO_INCREMENT,
+  galpon_id INT NOT NULL,
+  fecha DATE NOT NULL,
+  huevos INT NOT NULL,
+  aves_activas INT NOT NULL,
+  alimento_kg DECIMAL(5,2) DEFAULT NULL,
+  observaciones TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (galpon_id) REFERENCES galpones(id) ON DELETE CASCADE
 );
 ```
-## Relaciones
-### Galpones → Gallinas
-1 galpón puede tener muchas gallinas
-
-### Galpones → Producción
-1 galpón puede tener muchos registros diarios
-
-## Modelo operacional
-
-El sistema evolucionó de:
-
-producción por gallina
-
-a:
-
-producción diaria por galpón
-
-Esto permite:
-
-- mayor escalabilidad
-- manejo de grandes cantidades de aves
-- métricas reales de producción
-- cálculos operacionales más precisos
-
-### Futuras mejoras
-
-- lotes de aves
-- control sanitario
-- inventario de alimento
-- alertas automáticas
-- estadísticas avanzadas
-- autenticación de usuarios

@@ -1,12 +1,11 @@
-# Documentación de Avicontrol
+# 📚 Documentación — Avicontrol
 
-Este directorio contiene la documentación del proyecto Avicontrol.
+Índice de toda la documentación técnica del proyecto.
 
-## Archivos
-
-- `arquitectura.md` - Describe la arquitectura del sistema y la separación de frontend/backend.
-- `problema_requisitos.md` - Describe el problema, los objetivos y el alcance del proyecto.
-
-## Propósito
-
-Usa esta documentación para entender el diseño, los requisitos y la estructura general del sistema antes de trabajar en el código.
+| Archivo | Descripción |
+|---------|-------------|
+| [arquitectura.md](arquitectura.md) | Arquitectura del sistema, capas y flujo de datos |
+| [database.md](database.md) | Esquema de base de datos y relaciones |
+| [api.md](api.md) | Endpoints de la API REST con ejemplos |
+| [problema_requisitos.md](problema_requisitos.md) | Problema, objetivos y alcance del sistema |
+| [decisiones.md](decisiones.md) | Decisiones técnicas y justificaciones |

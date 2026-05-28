@@ -1,84 +1,90 @@
-# Avicontrol - Backend
+# 🖥 Avicontrol — Backend
 
-API REST para la gestión de gallinas y producción de huevos.
+API REST desarrollada con Node.js y Express siguiendo Clean Architecture modular.
 
-## Tecnologías
+## 🏗 Arquitectura
 
-- Node.js
-- Express
-- MySQL
-- dotenv
-- cors
-- nodemon (desarrollo)
+Cada módulo sigue la misma estructura de capas:
 
-## Requisitos
+```
+modules/<modulo>/
+├── controller/    Recibe HTTP, llama al service
+├── service/       Lógica de negocio y validaciones
+├── repository/    Acceso a base de datos (SQL)
+├── domain/
+│   ├── model.js   Entidad del módulo
+│   └── port.js    Contrato que el repository implementa
+└── routes/        Definición de rutas HTTP
+```
 
-- Node.js
-- npm
-- MySQL
+## 📦 Módulos
 
-## Instalación
+| Módulo | Rutas base | Descripción |
+|--------|-----------|-------------|
+| dashboard | `/api/dashboard` | Stats y datos para gráficas |
+| galpones | `/api/galpones` | CRUD de galpones + stats |
+| gallinas | `/api/gallinas` | Registro por lotes y gestión |
+| produccion | `/api/produccion` | Producción diaria de huevos |
 
-1. En la carpeta `backend`, instala dependencias:
+## 🚀 Instalación
 
 ```bash
 npm install
+cp .env.example .env
+node src/app.js
 ```
 
-2. Crea un archivo `.env` con los datos de conexión a MySQL:
+## ⚙️ Variables de entorno
 
 ```env
 DB_HOST=localhost
-DB_USER=tu_usuario
-DB_PASSWORD=tu_password
-DB_NAME=nombre_base_datos
-DB_PORT=3306
+DB_USER=root
+DB_PASS=tu_password
+DB_NAME=avicontrol_db
+PORT=5000
 ```
 
-3. Asegúrate de crear las tablas necesarias en MySQL:
+## 📡 Endpoints principales
 
-```sql
-CREATE TABLE gallinas (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  codigo VARCHAR(255) NOT NULL,
-  raza VARCHAR(255),
-  edad INT,
-  estado VARCHAR(255)
-);
-
-CREATE TABLE produccion_huevos (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  gallina_id INT NOT NULL,
-  fecha DATE,
-  cantidad INT,
-  observaciones TEXT,
-  FOREIGN KEY (gallina_id) REFERENCES gallinas(id)
-);
+### Galpones
+```
+GET    /api/galpones
+GET    /api/galpones/:id
+GET    /api/galpones/:id/stats
+POST   /api/galpones
+PUT    /api/galpones/:id
+DELETE /api/galpones/:id
 ```
 
-## Uso
-
-Inicia el servidor en modo desarrollo:
-
-```bash
-npm run dev
+### Gallinas
+```
+GET    /api/gallinas?galpon_id=X
+POST   /api/gallinas           (registro por lotes)
+PUT    /api/gallinas/:id
+DELETE /api/gallinas/:id
 ```
 
-El servidor correrá en `http://localhost:3001`.
+### Producción
+```
+GET    /api/produccion
+POST   /api/produccion
+PUT    /api/produccion/:id
+DELETE /api/produccion/:id
+```
 
-## Endpoints
+### Dashboard
+```
+GET    /api/dashboard
+GET    /api/dashboard/produccion?dias=30
+GET    /api/dashboard/galpones
+GET    /api/dashboard/gallinas?dias=30
+```
 
-- `GET /api/gallinas` - Listar todas las gallinas
-- `GET /api/gallinas/:id` - Obtener una gallina por id
-- `POST /api/gallinas` - Crear una gallina
-- `PUT /api/gallinas/:id` - Actualizar una gallina
-- `DELETE /api/gallinas/:id` - Eliminar una gallina
+## ✅ Validaciones implementadas
 
-- `GET /api/produccion` - Listar registros de producción
-- `POST /api/produccion` - Registrar producción de huevos
-- `GET /api/produccion/gallina/:gallina_id` - Listar producción de una gallina
-- `GET /api/produccion/total/:gallina_id` - Total de huevos por gallina
-
-## Nota
-
-El frontend consume la API en `http://localhost:3001/api`.
+- No crear dos registros de producción del mismo galpón en la misma fecha
+- No registrar más gallinas que la capacidad disponible del galpón
+- No eliminar galpones con gallinas activas o enfermas
+- No reducir capacidad de un galpón por debajo de sus gallinas activas
+- Huevos producidos no pueden superar aves activas
+- Confirmación especial para marcar gallinas como muertas o vendidas

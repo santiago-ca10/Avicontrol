@@ -1,80 +1,88 @@
-# Avicontrol
+# 🐓 Avicontrol
 
-Sistema web para la gestión de gallinas y el control de producción de huevos.
+Sistema fullstack de gestión avícola moderno y escalable.
 
-## Descripción
+## 🎬 Video Demo
 
-Avicontrol es una aplicación cliente-servidor que permite registrar gallinas, administrar producción de huevos y visualizar estadísticas de la granja.
+[![Ver demo en YouTube](https://img.shields.io/badge/YouTube-Ver%20Demo-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=LINK_AQUI)
 
-## Estructura del proyecto
+---
 
-- `backend/` - API REST con Node.js, Express y MySQL.
-- `frontend/` - Interfaz web creada con React.
-- `docs/` - Documentación de arquitectura y requisitos.
+## ✨ Funcionalidades
 
-## Cómo ejecutar el proyecto
+- **Dashboard** — estadísticas en tiempo real, gráficas de producción y ocupación por galpón
+- **Galpones** — módulo principal con detalle, stats y gestión de gallinas integrada
+- **Gallinas** — registro por lotes, control de estado (activa, enferma, vendida, muerta)
+- **Producción** — registro diario con validación de duplicados y cálculo de productividad
 
-### Backend
+## 🛠 Tecnologías
 
-1. Entra a la carpeta `backend`:
+| Capa | Tecnología |
+|------|------------|
+| Frontend | React 18, recharts, lucide-react |
+| Backend | Node.js + Express |
+| Base de datos | MySQL 8 |
+| Driver | mysql2/promise |
+
+## 🚀 Instalación
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/santiago-ca10/Avicontrol.git
+cd Avicontrol
+```
+
+### 2. Base de datos
+
+```sql
+CREATE DATABASE avicontrol_db;
+```
+
+Ejecutar las tablas desde [`docs/database.md`](docs/database.md).
+
+### 3. Backend
 
 ```bash
 cd backend
-```
-
-2. Instala dependencias:
-
-```bash
 npm install
+cp .env.example .env   # Configurar variables
+node src/app.js
 ```
 
-3. Crea un archivo `.env` con la configuraci�n de MySQL:
+Corre en `http://localhost:5000`
 
-```env
-DB_HOST=localhost
-DB_USER=tu_usuario
-DB_PASSWORD=tu_password
-DB_NAME=nombre_base_datos
-DB_PORT=3306
-```
-
-4. Inicia el servidor:
-
-```bash
-npm run dev
-```
-
-El backend se ejecuta en `http://localhost:3001`.
-
-### Frontend
-
-1. Entra a la carpeta `frontend`:
+### 4. Frontend
 
 ```bash
 cd frontend
-```
-
-2. Instala dependencias:
-
-```bash
 npm install
-```
-
-3. Inicia la aplicación:
-
-```bash
 npm start
 ```
 
-Luego abre `http://localhost:3000`.
+Corre en `http://localhost:3000`
 
-## Documentación
+## 📁 Estructura
 
-- `docs/arquitectura.md` - Diseño arquitectónico del sistema.
-- `docs/problema_requisitos.md` - Problema, objetivos y alcance.
-- `docs/README.md` - Índice de documentación.
+```
+Avicontrol/
+├── backend/       API REST — Node.js + Express
+├── frontend/      SPA — React
+├── docs/          Documentación técnica
+└── README.md
+```
 
-## Notas
+## 📚 Documentación
 
-- El frontend usa la API en `http://localhost:3001/api`.
-- Asegúrate de que el backend esté activo antes de usar la interfaz.
+| Archivo | Contenido |
+|---------|-----------|
+| [docs/arquitectura.md](docs/arquitectura.md) | Arquitectura del sistema y capas |
+| [docs/database.md](docs/database.md) | Esquema de base de datos |
+| [docs/api.md](docs/api.md) | Endpoints de la API REST |
+| [docs/decisiones.md](docs/decisiones.md) | Decisiones técnicas justificadas |
+| [docs/problema_requisitos.md](docs/problema_requisitos.md) | Problema, objetivos y alcance |
+
+## Autor 
+
+Santiago C A
+

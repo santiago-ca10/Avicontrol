@@ -23,13 +23,13 @@ import GalponesPage from './pages/GalponesPage';
 
 function App() {
 
-  // 🌙 DARK MODE
+  //  DARK MODE
   const [dark, setDark] = useState(false);
 
-  // 📂 SIDEBAR
+  //  SIDEBAR
   const [collapsed, setCollapsed] = useState(false);
 
-  // 🌙 CAMBIO TEMA
+  //  CAMBIO TEMA
   useEffect(() => {
 
     if (dark) {

@@ -1,49 +1,79 @@
-# Arquitectura del Sistema
+# 🏗 Arquitectura — Avicontrol
 
-El sistema Avicontrol sigue una arquitectura cliente-servidor con una interfaz web que consume una API REST.
+## Tipo de arquitectura
+
+**Clean Architecture simplificada con influencia hexagonal.**
+
+Cada módulo es independiente y sigue la misma estructura de capas. Las capas solo se comunican hacia adentro: el controller llama al service, el service llama al repository, nunca al revés.
+
+## Capas
+
+```
+HTTP Request
+    ↓
+[ routes ]        Define endpoints y métodos HTTP
+    ↓
+[ controller ]    Valida entrada, llama service, retorna respuesta
+    ↓
+[ service ]       Lógica de negocio, validaciones de dominio
+    ↓
+[ repository ]    Queries SQL, acceso a MySQL
+    ↓
+[ MySQL ]
+```
+
+## Módulos del backend
+
+```
+src/modules/
+├── dashboard/     Stats generales y datos para gráficas
+├── galpones/      Gestión de galpones y capacidad
+├── gallinas/      Ciclo de vida de gallinas por lotes
+└── produccion/    Registro diario de huevos
+```
+
+Cada módulo contiene:
+
+```
+<modulo>/
+├── controller/   <modulo>.controller.js
+├── service/      <modulo>.service.js
+├── repository/   <modulo>.repository.js
+├── domain/
+│   ├── <modulo>.model.js    Entidad
+│   └── <modulo>.port.js     Interfaz (contrato)
+└── routes/       <modulo>.routes.js
+```
+
+## El rol del port (influencia hexagonal)
+
+El archivo `port.js` define los métodos que el repository DEBE implementar. Si en el futuro se cambia MySQL por otro motor de base de datos, solo se reemplaza el repository sin tocar el service ni el controller.
+
+```js
+// gallinas.port.js
+class GallinasPort {
+  async getAll(galpon_id) { throw new Error('No implementado') }
+  async create(data)       { throw new Error('No implementado') }
+  // ...
+}
+```
 
 ## Frontend
 
-- Tecnologías: React, React Router DOM y Axios.
-- Componente principal: `src/App.js` maneja las rutas y navegación.
-- Páginas:
-  - `DashboardPage` muestra métricas generales.
-  - `GallinasPage` lista las gallinas registradas.
-  - `CrearGallinaPage` permite agregar nuevas gallinas.
-  - `ProduccionPage` muestra los registros de producción de huevos.
-- `src/services/api.js` configura el cliente HTTP que consume la API de backend.
+```
+src/
+├── components/   Componentes reutilizables
+├── pages/        Una página por módulo
+└── services/     api.js — cliente HTTP centralizado
+```
 
-## Backend
+Arquitectura: **feature por página**, plana por tipo dentro de `components/`. Suficiente para el tamaño actual del proyecto.
 
-- Tecnologías: Node.js, Express y MySQL.
-- Organización MVC:
-  - Controladores en `src/controllers`.
-  - Rutas en `src/routes`.
-  - Configuración de base de datos en `src/config/db.js`.
-- Endpoints principales:
-  - `/api/gallinas` para CRUD de gallinas.
-  - `/api/produccion` para registrar y consultar producción.
+## Comunicación frontend ↔ backend
 
-## Base de Datos
-
-- Motor: MySQL.
-- Tablas principales:
-  - `gallinas`: almacena código, raza, edad y estado de cada gallina.
-  - `produccion_huevos`: registra la producción diaria de cada gallina.
-- Relaciones:
-  - `produccion_huevos.gallina_id` referencia a `gallinas.id`.
-
-## Comunicación
-
-- El frontend realiza llamadas HTTP a la API del backend.
-- El intercambio de datos se realiza en formato JSON.
-
-## Despliegue local
-
-- Backend en `http://localhost:3001`.
-- Frontend en `http://localhost:3000`.
-
-## Patrón de diseño
-
-- El sistema sigue el patrón MVC en el backend para separar presentación, lógica y acceso a datos.
-- En el frontend se usa una arquitectura basada en componentes y rutas para separar vistas.
+```
+React (localhost:3000)
+    → api.js (axios/fetch)
+        → Express API (localhost:5000/api)
+            → MySQL (localhost:3306)
+```

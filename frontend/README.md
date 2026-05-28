@@ -1,50 +1,82 @@
-# Avicontrol - Frontend
+# 🌐 Avicontrol — Frontend
 
-Interfaz web para el sistema Avicontrol. Permite consultar gallinas, registrar nuevas gallinas y ver producci�n de huevos.
+Interfaz web SPA desarrollada con React 18. Diseño moderno minimalista con modo oscuro, sidebar colapsable y sistema de modales reutilizables.
 
-## Tecnolog�as
-
-- React 19
-- React Router DOM
-- Axios
-- Create React App
-
-## Estructura principal
-
-- `src/App.js` - Rutas y navegaci�n principal.
-- `src/pages/DashboardPage.js` - Dashboard con m�tricas.
-- `src/pages/GallinasPage.js` - Vista de gallinas registradas.
-- `src/pages/CrearGallinaPage.js` - Formulario de registro de gallinas.
-- `src/pages/ProduccionPage.js` - Registro y visualizaci�n de producci�n.
-- `src/services/api.js` - Cliente Axios.
-
-## Configuraci�n
-
-El frontend consume la API en:
-
-```js
-http://localhost:3001/api
-```
-
-Si cambias el puerto o la direcci�n del backend, actualiza `src/services/api.js`.
-
-## Uso
+## 🚀 Instalación
 
 ```bash
-cd frontend
 npm install
 npm start
 ```
 
-Abre `http://localhost:3000` en el navegador.
+Corre en `http://localhost:3000`. El backend debe estar activo en `http://localhost:5000`.
 
-## Scripts
+## 📦 Dependencias clave
 
-- `npm start` - Ejecuta la app en modo desarrollo.
-- `npm run build` - Genera la versi�n de producci�n.
-- `npm test` - Ejecuta pruebas.
+| Paquete | Uso |
+|---------|-----|
+| react-router-dom | Navegación SPA |
+| axios / fetch | Peticiones a la API |
+| recharts | Gráficas del dashboard |
+| lucide-react | Iconografía del sistema |
 
-## Notas
+## 🗂 Estructura
 
-- Aseg�rate de iniciar el backend antes de usar el frontend.
-- El backend debe ejecutarse en `http://localhost:3001`.
+```
+src/
+├── components/
+│   ├── Modal.js           Base reutilizable con portal
+│   ├── ConfirmModal.js    Confirmación con texto escrito
+│   ├── AlertModal.js      Reemplaza alert() nativo
+│   ├── GalponForm.js      Formulario de galpón
+│   ├── GallinaForm.js     Formulario de lote de gallinas
+│   └── Sidebar.js         Navegación colapsable
+├── pages/
+│   ├── DashboardPage.js   Stats + gráficas
+│   ├── GalponesPage.js    Módulo principal
+│   ├── ProduccionPage.js  Producción diaria
+│   └── GallinasPage.js    Redirige a Galpones
+├── services/
+│   └── api.js             Cliente HTTP centralizado
+├── App.js                 Router y layout principal
+└── index.css              Estilos globales + dark mode
+```
+
+## 🎨 Características UI/UX
+
+- **Modo oscuro/claro** — toggle en el sidebar
+- **Sidebar colapsable** — se colapsa a iconos
+- **Sin alert/confirm/prompt** — reemplazados por modales modernos
+- **Modales con portal** — usan `ReactDOM.createPortal` para evitar bugs de DOM
+- **Gráficas interactivas** — área y barras con recharts
+- **Sidebar fijo** — no hace scroll con el contenido
+- **Responsive** — grid adaptable a distintos tamaños
+
+## 🧩 Sistema de modales
+
+Todos los modales usan `ReactDOM.createPortal` montándose en `document.body`:
+
+```jsx
+// Alerta simple
+<AlertModal
+  isOpen={open}
+  onClose={() => setOpen(false)}
+  title="Éxito"
+  message="Operación completada."
+  type="success"   // success | error | warning | info
+/>
+
+// Confirmación con texto
+<ConfirmModal
+  isOpen={open}
+  onClose={() => setOpen(false)}
+  onConfirm={handleDelete}
+  title="Eliminar galpón"
+  message="Esta acción no se puede deshacer."
+  confirmWord="Galpón A"   // El usuario debe escribir esto
+/>
+```
+
+## 🌙 Dark mode
+
+Se controla añadiendo/quitando la clase `dark` en `document.body`. Las variables CSS en `:root` y `.dark` manejan todos los colores del sistema.
