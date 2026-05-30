@@ -357,8 +357,7 @@ function ProduccionPage() {
                   <td>{p.huevos}</td>
                   <td>{p.aves_activas}</td>
                   <td>{productividad}%</td>
-                  <td>{p.mortalidad}</td>
-                  <td>{p.alimento_kg || 0} kg</td>
+                  <td>{p.alimento_kg ? `${p.alimento_kg} kg` : '—'}</td>
                   <td>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button
