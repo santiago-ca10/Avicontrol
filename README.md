@@ -4,7 +4,7 @@ Sistema fullstack de gestión avícola moderno y escalable.
 
 ## 🎬 Video Demo
 
-[![Ver demo en YouTube](https://img.shields.io/badge/YouTube-Ver%20Demo-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=LINK_AQUI)
+[![Ver demo en YouTube](https://img.shields.io/badge/YouTube-Ver%20Demo-red?style=for-the-badge&logo=youtube)](https://youtu.be/QmPBbESu8cw)
 
 ---
 
